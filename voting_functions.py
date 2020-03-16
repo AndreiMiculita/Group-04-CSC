@@ -5,21 +5,16 @@ from numpy import random
 import itertools
 
 
-def dictatorship(A, n, ballot):
-    print('------------DICTATORSHIP------------')
+def dictatorship(ballot):
     # Dictatorship possibilities are
     column = ballot[:, 0]
     res = []
     [res.append(x) for x in column if x not in res]
 
-    print('Possible choice for Dictatorship: ', res)
-
     return res
 
 
-def plurality(A, n, ballot):
-    print('------------PLURALITY------------')
-
+def plurality(A, ballot):
     # Plurality
     column_occurrences = np.array([[0] * len(A)])
     for i in range(0, len(A)):
@@ -41,8 +36,7 @@ def plurality(A, n, ballot):
 
 
 # Borda
-def borda(A, n, ballot):
-    print('-----------BORDA------------')
+def borda(A, ballot):
     row_occurrences = np.array([[0] * len(A)])
     for i in range(0, len(A)):
         row_occurrences = np.append(row_occurrences, [np.count_nonzero(ballot == str(A[i]), axis=0)], axis=0)
@@ -68,9 +62,7 @@ def borda(A, n, ballot):
     return set(res)
 
 
-def condorcet(A, n, ballot):
-    print('------------CONDORCET----------')
-
+def condorcet(A, ballot):
     graph = []
     for a, b in itertools.combinations(A, 2):
         defeats = 0
@@ -100,9 +92,7 @@ def condorcet(A, n, ballot):
     return set(A)
 
 
-def stv(A, n, ballot):
-    print('------------STV------------')
-
+def stv(A, ballot):
     # Plurality
     column_occurrences = np.array([[0] * len(A)])
     for i in range(0, len(A)):
@@ -136,8 +126,7 @@ def stv(A, n, ballot):
                     break;
 
 
-def stv2(A, n, ballot, remove_first=True):
-    print("STV2 - remove first=", remove_first)
+def stv2(A, ballot, remove_first=True):
     plurality_scores = {option: 0 for option in A}
 
     # Calculate plurality scores (how many times each option is first in someone's ballot)
@@ -189,7 +178,7 @@ for j in range(50):
 
     # functions
     ballot_list = [n.tolist() for n in ballot]
-    res = [plurality(A, n, ballot), condorcet(A, n, ballot), borda(A, n, ballot), stv2(A, n, ballot_list)]
+    res = [plurality(A, ballot), condorcet(A, ballot), borda(A, ballot), stv2(A, ballot_list)]
     if len(res) == len(set(tuple(x) for x in res)):
         print('Iteration: ', j)
         print(ballot)
