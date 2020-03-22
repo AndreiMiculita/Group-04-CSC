@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 import numpy as np
 
-
 @dataclass
 class Agent:
     """
@@ -20,6 +19,7 @@ def generate_agents(number_of_agents: int = 100, value_dimensions: int = 3) -> s
     :param value_dimensions how many dimensions the agents' values have
     :return a set of voting agents
     """
+
     set_of_agents = set()
     for i in range(number_of_agents):
         # Generate a random set of values and normalize it
@@ -51,9 +51,9 @@ def calculate_vote(profile) -> list:
 
 def generate_and_simulate():
     voter_set = generate_agents(number_of_agents=10)
+    print(voter_set)
     profile = generate_profile(voter_set=voter_set)
     calculate_vote(profile=profile)
-
 
 if __name__ == "main":
     generate_and_simulate()

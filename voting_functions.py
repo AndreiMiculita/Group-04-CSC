@@ -165,6 +165,35 @@ def stv2(A, ballot, remove_first=True):
     print(plurality_scores)
     return set(plurality_scores.keys())
 
+#Knapsack voting for participatory budgeting
+def knapsack(A,ballot,max_cost):
+    # Needs a profile where each voter defines how much money they want to allocate to each of the choices
+
+    # Transpose the ballot: to see the votes per choice instead of per voter (alternatively, provide the ballot in that form)
+    ballot_T = np.transpose(ballot)
+
+    # This will hold the final allocation per choice
+    allocation = []
+
+    # Go over each choice
+    for i in range(0,len(ballot_T)):
+        # Values per dollar: See paper "Knapsack Voting for Participatory Budgeting" for a description of this method
+        sack = np.zeros(max(ballot_T[i])).tolist()
+        for j in range(0,len(ballot_T[i])):
+            vote = ballot_T[i][j]
+            for k in range(0,vote):
+                sack[k] += 1
+
+        # The final allocation is the maximum amount of values per dollar for each choice
+        if len(set(sack))!= 1:
+            allocation.append(len([v for v in sack if v != min(sack)]))
+        else:
+            allocation.append(len(sack))
+
+    return allocation
+
+
+
 
 for j in range(50):
     A = ['a', 'b', 'c', 'd']  # this can be changed to add more options in A
@@ -184,6 +213,11 @@ for j in range(50):
         print(ballot)
         print(res)
         break
+
+
+#Knapsack trial
+ballot = [[4,5,1],[3,5,2],[0,0,10]]
+print(knapsack(['a','b','c'],ballot,[5,5,10]))
 
 
 
