@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import numpy as np
 
+
 @dataclass
 class Agent:
     """
@@ -32,6 +33,7 @@ def generate_agents(number_of_agents: int = 100, value_dimensions: int = 3) -> s
 
 
 def generate_profile(voter_set) -> np.ndarray:
+    # TODO
     """
     Generate a profile from a set of voters
     :param voter_set: the set of all voter agents participating in the profile
@@ -41,6 +43,7 @@ def generate_profile(voter_set) -> np.ndarray:
 
 
 def calculate_vote(profile) -> list:
+    # TODO
     """
     Calculate a list of winners, given a profile
     :param profile: the ballot of voters
