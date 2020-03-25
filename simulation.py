@@ -58,5 +58,6 @@ def generate_and_simulate():
     profile = generate_profile(voter_set=voter_set)
     calculate_vote(profile=profile)
 
-if __name__ == "main":
+if __name__ == "__main__":
     generate_and_simulate()
+
