@@ -13,7 +13,7 @@ class Agent:
     value_preferences: list
 
 
-def generate_agents(number_of_agents: int = 100, value_dimensions: int = 3) -> set:
+def generate_agents(number_of_agents: int = 100, value_dimensions: int = 3) -> list:
     """
     Use this function to generate the set of voting agents
     :param number_of_agents number of agents to generate
@@ -21,15 +21,15 @@ def generate_agents(number_of_agents: int = 100, value_dimensions: int = 3) -> s
     :return a set of voting agents
     """
 
-    set_of_agents = set()
+    list_of_agents = list()
     for i in range(number_of_agents):
         # Generate a random set of values and normalize it
         value_prefs = [np.random.random() for _ in range(value_dimensions)]
         value_prefs_sum = sum(value_prefs)
         value_prefs_normalized = [float(i) / value_prefs_sum for i in value_prefs]
 
-        set_of_agents.add(Agent(id=i, value_preferences=value_prefs_normalized))
-    return set_of_agents
+        list_of_agents.append(Agent(id=i, value_preferences=value_prefs_normalized))
+    return list_of_agents
 
 
 def generate_profile(voter_set) -> np.ndarray:
