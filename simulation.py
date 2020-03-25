@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 import numpy as np
+import sys
+import argparse
 
 
 @dataclass
@@ -33,7 +35,7 @@ def generate_agents(number_of_agents: int = 100, value_dimensions: int = 3) -> l
 
 
 def generate_profile(voter_set) -> np.ndarray:
-    # TODO
+    #TODO
     """
     Generate a profile from a set of voters
     :param voter_set: the set of all voter agents participating in the profile
@@ -52,12 +54,21 @@ def calculate_vote(profile) -> list:
     return NotImplemented
 
 
-def generate_and_simulate():
-    voter_set = generate_agents(number_of_agents=10)
+def generate_and_simulate(number_of_agents, value_dimensions):
+    voter_set = generate_agents(number_of_agents, value_dimensions)
     print(voter_set)
     profile = generate_profile(voter_set=voter_set)
     calculate_vote(profile=profile)
 
 if __name__ == "__main__":
-    generate_and_simulate()
+
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('n_of_agents',type=int, default=10, 
+                    help='number of inidividuals in the simulation')
+    parser.add_argument('n_of_dimensions',type=int, default=3, 
+                    help='number of personal opinions (dimensions) of the agents')
+
+    args = parser.parse_args()
+
+    generate_and_simulate(args.n_of_agents, args.n_of_dimensions)
 
