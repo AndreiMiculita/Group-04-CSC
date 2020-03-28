@@ -192,8 +192,17 @@ def knapsack(A,ballot,max_cost):
 
     return allocation
 
+# Average function: allocates the average of the allocated cost for each project
+def average_vote(A,ballot):
+    ballot_T = np.transpose(ballot)
 
+    allocation = []
 
+    for i in range(0,len(ballot_T)):
+        print(ballot_T[i])
+        allocation.append(sum(ballot_T[i])/len(A))
+
+    return allocation
 
 for j in range(50):
     A = ['a', 'b', 'c', 'd']  # this can be changed to add more options in A
@@ -218,6 +227,9 @@ for j in range(50):
 #Knapsack trial
 ballot = [[4,5,1],[3,5,2],[0,0,10]]
 print(knapsack(['a','b','c'],ballot,[5,5,10]))
+
+#Average vote trial
+print("Average function:",average_vote(['a','b','c'],ballot))
 
 
 
