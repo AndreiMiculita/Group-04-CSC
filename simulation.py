@@ -22,7 +22,6 @@ def generate_agents(number_of_agents: int = 100, value_dimensions: int = 3) -> l
     :param value_dimensions how many dimensions the agents' values have
     :return a set of voting agents
     """
-
     list_of_agents = list()
     for i in range(number_of_agents):
         # Generate a random set of values and normalize it
@@ -34,14 +33,20 @@ def generate_agents(number_of_agents: int = 100, value_dimensions: int = 3) -> l
     return list_of_agents
 
 
-def generate_profile(voter_set) -> np.ndarray:
+def generate_profile(voter_set,budget: int=100) -> np.ndarray:
     #TODO
     """
     Generate a profile from a set of voters
     :param voter_set: the set of all voter agents participating in the profile
-    :return:
+    :return: profile: cost per project of each agent
     """
-    return NotImplemented
+    # Profile with cost per project
+    profile = np.ndarray((len(voter_set),len(voter_set[1].value_preferences)))
+    for voter in voter_set:
+        cost_preference = [i*budget for i in voter.value_preferences]
+        profile[voter.id] = cost_preference
+
+    return profile
 
 
 def calculate_vote(profile) -> list:
@@ -54,21 +59,23 @@ def calculate_vote(profile) -> list:
     return NotImplemented
 
 
-def generate_and_simulate(number_of_agents, value_dimensions):
+def generate_and_simulate(number_of_agents, value_dimensions, budget):
     voter_set = generate_agents(number_of_agents, value_dimensions)
-    print(voter_set)
-    profile = generate_profile(voter_set=voter_set)
+    profile = generate_profile(voter_set=voter_set,budget=budget)
+    print(profile)
     calculate_vote(profile=profile)
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Process some integers.')
     parser.add_argument('n_of_agents',type=int, default=10, 
-                    help='number of inidividuals in the simulation')
+                    help='number of individuals in the simulation')
     parser.add_argument('n_of_dimensions',type=int, default=3, 
                     help='number of personal opinions (dimensions) of the agents')
+    parser.add_argument('budget',type=int,default=100,
+                             help='Total budget that needs to be distributed over projects')
 
     args = parser.parse_args()
 
-    generate_and_simulate(args.n_of_agents, args.n_of_dimensions)
+    generate_and_simulate(args.n_of_agents, args.n_of_dimensions,args.budget)
 
