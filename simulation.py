@@ -53,8 +53,8 @@ def generate_profile_preference(voter_set, budget: int=100, num_projects:int=10)
     profile = np.ndarray((len(voter_set),num_projects))
     for voter in voter_set:
 
-        projects_pref=generate_projects(num_projects,len(voter_set[1].value_preferences))
-        projects_cost=[voter_set[1].value_preferences*p for p in projects_pref]
+        projects_pref=generate_projects(num_projects,len(voter_set[0].value_preferences))
+        projects_cost=[voter.value_preferences*p for p in projects_pref]
         
         #print("------PROJECT COST----------")
         #print (projects_cost)
