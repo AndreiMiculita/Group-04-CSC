@@ -1,8 +1,11 @@
-from dataclasses import dataclass
-import numpy as np
-import sys
 import argparse
 import random as rn
+from dataclasses import dataclass
+
+import numpy as np
+
+# Random number generator seed, set to None for true random
+seed = 51
 
 
 @dataclass
@@ -34,56 +37,61 @@ def generate_agents(number_of_agents: int = 100, value_dimensions: int = 3) -> l
     return list_of_agents
 
 
-def generate_projects(num_projects:int=10, value_dimensions:int=3) -> list:
-    projects_pref=list()
+def generate_projects(num_projects: int = 10, value_dimensions: int = 3) -> list:
+    projects_pref = list()
 
-    for i in range (num_projects):
-        pref=rn.randrange(0,value_dimensions+1, 1)
-        project=np.zeros(value_dimensions)
-        project[:pref]= 1
-        project_f=np.random.permutation(project)
+    rn.seed(a=seed)
 
+    for i in range(num_projects):
+        pref = rn.randrange(0, value_dimensions + 1, 1)
+        project = np.zeros(value_dimensions)
+        project[:pref] = 1
+        project_f = np.random.permutation(project)
 
         projects_pref.append(project_f)
 
     return projects_pref
 
-def generate_profile_preference(voter_set, budget: int=100, num_projects:int=10)->np.ndarray:
 
-    profile = np.ndarray((len(voter_set),num_projects))
+def generate_profile_preference(voter_set, budget: int = 100, num_projects: int = 10) -> np.ndarray:
+    profile = np.ndarray((len(voter_set), num_projects))
     for voter in voter_set:
+        projects_pref = generate_projects(num_projects, len(voter_set[0].value_preferences))
+        # projects_cost = [voter.value_preferences * p for p in projects_pref]
+        projects_cost = np.multiply(voter.value_preferences, projects_pref)
 
-        projects_pref=generate_projects(num_projects,len(voter_set[0].value_preferences))
-        projects_cost=[voter.value_preferences*p for p in projects_pref]
-        
-        #print("------PROJECT COST----------")
-        #print (projects_cost)
+        # print("------PROJECT COST----------")
+        # print (projects_cost)
 
-        sum_proj_pref=[sum(p) for p in projects_cost]
-        norm_proj_pref= sum_proj_pref/sum(sum_proj_pref)
+        # sum_proj_pref=[sum(p) for p in projects_cost]
+        # norm_proj_pref= sum_proj_pref/sum(sum_proj_pref)
+        sum_proj_pref = np.sum(projects_cost, axis=1)
+        norm_proj_pref = np.divide(sum_proj_pref, sum(sum_proj_pref))
 
-        #print(sum_proj_pref)
-        #print("Then we normalize:")
-        #print(norm_proj_pref)
+        # print(sum_proj_pref)
+        # print("Then we normalize:")
+        # print(norm_proj_pref)
 
-        profile[voter.id] = norm_proj_pref*budget
+        profile[voter.id] = norm_proj_pref * budget
 
     return profile
 
-def generate_profile(voter_set,budget: int=100) -> np.ndarray:
-    #TODO
+
+def generate_profile(voter_set, budget: int = 100) -> np.ndarray:
+    # TODO
     """
     Generate a profile from a set of voters
     :param voter_set: the set of all voter agents participating in the profile
     :return: profile: cost per project of each agent
     """
     # Profile with cost per project
-    profile = np.ndarray((len(voter_set),len(voter_set[0].value_preferences)))
+    profile = np.ndarray((len(voter_set), len(voter_set[0].value_preferences)))
     for voter in voter_set:
-        cost_preference = [i*budget for i in voter.value_preferences]
+        cost_preference = np.multiply(voter.value_preferences, budget)
         profile[voter.id] = cost_preference
 
     return profile
+
 
 def cost_to_order_profile(profile) -> np.ndarray:
     """
@@ -93,9 +101,9 @@ def cost_to_order_profile(profile) -> np.ndarray:
     """
 
     ballot = np.ndarray(profile.shape)
-    for i in range(0,len(profile)):
+    for i in range(0, len(profile)):
         p = profile[i]
-        ballot[i] = np.argsort(-1*p) + 1
+        ballot[i] = np.argsort(-1 * p) + 1
 
     return ballot
 
@@ -122,20 +130,19 @@ def generate_and_simulate(number_of_agents, value_dimensions, budget, num_projec
     print(ballot)
     calculate_vote(profile=profile)
 
+
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('n_of_agents',type=int, default=10, 
-                    help='number of individuals in the simulation')
-    parser.add_argument('n_of_dimensions',type=int, default=3, 
-                    help='number of personal opinions (dimensions) of the agents')
-    parser.add_argument('budget',type=int,default=100,
-                             help='Total budget that needs to be distributed over projects')
+    parser.add_argument('n_of_agents', type=int, default=10,
+                        help='number of individuals in the simulation')
+    parser.add_argument('n_of_dimensions', type=int, default=3,
+                        help='number of personal opinions (dimensions) of the agents')
+    parser.add_argument('budget', type=int, default=100,
+                        help='Total budget that needs to be distributed over projects')
 
-    parser.add_argument('num_projects',type=int,default=10,
-                             help='Total number of projects over which the budget needs to be distributed')
+    parser.add_argument('num_projects', type=int, default=10,
+                        help='Total number of projects over which the budget needs to be distributed')
 
     args = parser.parse_args()
 
-    generate_and_simulate(args.n_of_agents, args.n_of_dimensions,args.budget, args.num_projects)
-
+    generate_and_simulate(args.n_of_agents, args.n_of_dimensions, args.budget, args.num_projects)
