@@ -4,6 +4,19 @@ import numpy as np
 from numpy import random
 import itertools
 
+def aggregate_vote_to_cost(res,profile):
+
+    allocation = np.zeros(len(res))
+
+    #Calculate median per project
+    median = np.median(profile, axis=0)
+
+    #Arrange it with respect to the social choice
+    for i in range(0,len(res)):
+        allocation[i] = median[res[i]-1]
+
+    return allocation
+
 
 def dictatorship(ballot):
     # Dictatorship possibilities are
@@ -204,32 +217,40 @@ def average_vote(A,ballot):
 
     return allocation
 
-for j in range(50):
-    A = ['a', 'b', 'c', 'd']  # this can be changed to add more options in A
-    ballot = np.array([np.random.permutation(A)])
-    n = 4  # number of voters
-    for i in range(0, n):  # change second parameter for number of voters
-        v = np.random.permutation(A)
-        ballot = np.append(ballot, [v], axis=0)
 
-    print(ballot)
+# Main
+if __name__ == "__main__":
+    for j in range(50):
+        A = ['a', 'b', 'c', 'd']  # this can be changed to add more options in A
+        ballot = np.array([np.random.permutation(A)])
+        n = 4  # number of voters
+        for i in range(0, n):  # change second parameter for number of voters
+            v = np.random.permutation(A)
+            ballot = np.append(ballot, [v], axis=0)
 
-    # functions
-    ballot_list = [n.tolist() for n in ballot]
-    res = [plurality(A, ballot), condorcet(A, ballot), borda(A, ballot), stv2(A, ballot_list)]
-    if len(res) == len(set(tuple(x) for x in res)):
-        print('Iteration: ', j)
         print(ballot)
-        print(res)
-        break
+
+        # functions
+        ballot_list = [n.tolist() for n in ballot]
+        res = [plurality(A, ballot), condorcet(A, ballot), borda(A, ballot), stv2(A, ballot_list)]
+        if len(res) == len(set(tuple(x) for x in res)):
+            print('Iteration: ', j)
+            print(ballot)
+            print(res)
+            break
 
 
-#Knapsack trial
-ballot = [[4,5,1],[3,5,2],[0,0,10]]
-print(knapsack(['a','b','c'],ballot,[5,5,10]))
+    # Knapsack trial
+    ballot = [[4,5,1],[3,5,2],[0,0,10]]
+    print(knapsack(['a','b','c'],ballot,[5,5,10]))
 
-#Average vote trial
-print("Average function:",average_vote(['a','b','c'],ballot))
+    # Average vote trial
+    print("Average function:",average_vote(['a','b','c'],ballot))
+
+    # Median aggregation trial
+    print("--------Median------")
+    print(aggregate_vote_to_cost([2,1,3],ballot))
+
 
 
 

@@ -78,12 +78,26 @@ def generate_profile(voter_set,budget: int=100) -> np.ndarray:
     :return: profile: cost per project of each agent
     """
     # Profile with cost per project
-    profile = np.ndarray((len(voter_set),len(voter_set[1].value_preferences)))
+    profile = np.ndarray((len(voter_set),len(voter_set[0].value_preferences)))
     for voter in voter_set:
         cost_preference = [i*budget for i in voter.value_preferences]
         profile[voter.id] = cost_preference
 
     return profile
+
+def cost_to_order_profile(profile) -> np.ndarray:
+    """
+    Convert a cost preference profile to a linear order ballot
+    :param profile: the cost preference profile
+    :return: linear order ballot
+    """
+
+    ballot = np.ndarray(profile.shape)
+    for i in range(0,len(profile)):
+        p = profile[i]
+        ballot[i] = np.argsort(-1*p) + 1
+
+    return ballot
 
 
 def calculate_vote(profile) -> list:
@@ -98,12 +112,14 @@ def calculate_vote(profile) -> list:
 
 def generate_and_simulate(number_of_agents, value_dimensions, budget, num_projects):
     voter_set = generate_agents(number_of_agents, value_dimensions)
-    profile = generate_profile(voter_set=voter_set,budget=budget)
-    profile_pref = generate_profile_preference(voter_set=voter_set,budget=budget, num_projects=num_projects)
+    profile = generate_profile(voter_set=voter_set, budget=budget)
+    profile_pref = generate_profile_preference(voter_set=voter_set, budget=budget, num_projects=num_projects)
     print("---Prajakta's profile----")
     print(profile)
     print("---Francesca's profile----")
     print(profile_pref)
+    ballot = cost_to_order_profile(profile_pref)
+    print(ballot)
     calculate_vote(profile=profile)
 
 if __name__ == "__main__":
