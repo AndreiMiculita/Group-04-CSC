@@ -88,6 +88,7 @@ def generate_profile(voter_set, budget: int = 100) -> np.ndarray:
     # Profile with cost per project
     profile = np.ndarray((len(voter_set), len(voter_set[0].value_preferences)))
     for voter in voter_set:
+        # cost_preference = [i*budget for i in voter.value_preferences]
         cost_preference = np.multiply(voter.value_preferences, budget)
         profile[voter.id] = cost_preference
 
