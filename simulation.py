@@ -82,6 +82,7 @@ def generate_profile(voter_set, budget: int = 100) -> np.ndarray:
     """
     Generate a profile from a set of voters
     :param voter_set: the set of all voter agents participating in the profile
+    :param budget: the maximum budget that must be allocated
     :return: profile: cost per project of each agent
     """
     # Profile with cost per project

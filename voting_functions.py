@@ -4,16 +4,16 @@ import numpy as np
 from numpy import random
 import itertools
 
-def aggregate_vote_to_cost(res,profile):
 
+def aggregate_vote_to_cost(res, profile):
     allocation = np.zeros(len(res))
 
-    #Calculate median per project
+    # Calculate median per project
     median = np.median(profile, axis=0)
 
-    #Arrange it with respect to the social choice
-    for i in range(0,len(res)):
-        allocation[i] = median[res[i]-1]
+    # Arrange it with respect to the social choice
+    for i in range(0, len(res)):
+        allocation[i] = median[res[i] - 1]
 
     return allocation
 
@@ -178,8 +178,9 @@ def stv2(A, ballot, remove_first=True):
     print(plurality_scores)
     return set(plurality_scores.keys())
 
-#Knapsack voting for participatory budgeting
-def knapsack(A,ballot,max_cost):
+
+# Knapsack voting for participatory budgeting
+def knapsack(A, ballot, max_cost):
     # Needs a profile where each voter defines how much money they want to allocate to each of the choices
 
     # Transpose the ballot: to see the votes per choice instead of per voter (alternatively, provide the ballot in that form)
@@ -189,31 +190,32 @@ def knapsack(A,ballot,max_cost):
     allocation = []
 
     # Go over each choice
-    for i in range(0,len(ballot_T)):
+    for i in range(0, len(ballot_T)):
         # Values per dollar: See paper "Knapsack Voting for Participatory Budgeting" for a description of this method
         sack = np.zeros(max(ballot_T[i])).tolist()
-        for j in range(0,len(ballot_T[i])):
+        for j in range(0, len(ballot_T[i])):
             vote = ballot_T[i][j]
-            for k in range(0,vote):
+            for k in range(0, vote):
                 sack[k] += 1
 
         # The final allocation is the maximum amount of values per dollar for each choice
-        if len(set(sack))!= 1:
+        if len(set(sack)) != 1:
             allocation.append(len([v for v in sack if v != min(sack)]))
         else:
             allocation.append(len(sack))
 
     return allocation
 
+
 # Average function: allocates the average of the allocated cost for each project
-def average_vote(A,ballot):
+def average_vote(A, ballot):
     ballot_T = np.transpose(ballot)
 
     allocation = []
 
-    for i in range(0,len(ballot_T)):
+    for i in range(0, len(ballot_T)):
         print(ballot_T[i])
-        allocation.append(sum(ballot_T[i])/len(A))
+        allocation.append(sum(ballot_T[i]) / len(A))
 
     return allocation
 
@@ -239,20 +241,13 @@ if __name__ == "__main__":
             print(res)
             break
 
-
     # Knapsack trial
-    ballot = [[4,5,1],[3,5,2],[0,0,10]]
-    print(knapsack(['a','b','c'],ballot,[5,5,10]))
+    ballot = [[4, 5, 1], [3, 5, 2], [0, 0, 10]]
+    print(knapsack(['a', 'b', 'c'], ballot, [5, 5, 10]))
 
     # Average vote trial
-    print("Average function:",average_vote(['a','b','c'],ballot))
+    print("Average function:", average_vote(['a', 'b', 'c'], ballot))
 
     # Median aggregation trial
     print("--------Median------")
-    print(aggregate_vote_to_cost([2,1,3],ballot))
-
-
-
-
-
-
+    print(aggregate_vote_to_cost([2, 1, 3], ballot))
