@@ -141,8 +141,7 @@ def condorcet(A, ballot):
     return set(A)
 
 
-def stv(A, ballot_list):
-    ballot = ballot_list.copy()
+def stv(A, ballot):
     # Plurality
     column_occurrences = np.array([[0] * len(A)])
     for i in range(0, len(A)):
@@ -177,6 +176,7 @@ def stv(A, ballot_list):
 
 
 def stv2(A, ballot, remove_first=True):
+
     plurality_scores = {option: 0 for option in A}
 
     # Calculate plurality scores (how many times each option is first in someone's ballot)
