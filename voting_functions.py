@@ -3,6 +3,7 @@
 import numpy as np
 from numpy import random
 import itertools
+import copy
 
 
 def aggregate_vote_to_cost(res, profile):
@@ -25,6 +26,41 @@ def dictatorship(ballot):
     [res.append(x) for x in column if x not in res]
 
     return res
+
+def sequential_plurality(A, ballot):
+
+    print('-----Sequential plurality------')
+
+    # Specify how many elements you want in the social choice set
+    # Sometimes the set will have more elements than k, when there are ties
+    k = 2
+    res = []
+
+    while len(res) <= k:
+        print(k)
+        plurality_scores = {option: 0 for option in A}
+
+        # Calculate plurality scores (how many times each option is first in someone's ballot)
+        for vote in ballot:
+            plurality_scores[vote[0]] += 1
+
+        # Highest score
+        max_score = max(plurality_scores.values())
+
+        # Find the option(s) that has that highest score
+        for option, score in plurality_scores.items():
+            if score == max_score:
+                res.append(option)
+
+        print(res)
+        # Remove the maximum option from ballot and from list of options
+        for i in range(len(ballot)):
+            ballot[i] = [e for e in ballot[i] if e not in res]
+
+        A = [option for option in A if option not in res]
+
+
+    return set(res)
 
 
 def plurality(A, ballot):
@@ -105,7 +141,8 @@ def condorcet(A, ballot):
     return set(A)
 
 
-def stv(A, ballot):
+def stv(A, ballot_list):
+    ballot = ballot_list.copy()
     # Plurality
     column_occurrences = np.array([[0] * len(A)])
     for i in range(0, len(A)):
@@ -234,7 +271,10 @@ if __name__ == "__main__":
 
         # functions
         ballot_list = [n.tolist() for n in ballot]
-        res = [plurality(A, ballot), condorcet(A, ballot), borda(A, ballot), stv2(A, ballot_list)]
+        ballot_copy = copy.deepcopy(ballot_list)    # created a copy to send to two different functions
+        res = [plurality(A, ballot), condorcet(A, ballot), borda(A, ballot), stv2(A, ballot_list),
+               sequential_plurality(A, ballot_copy)]
+
         if len(res) == len(set(tuple(x) for x in res)):
             print('Iteration: ', j)
             print(ballot)
