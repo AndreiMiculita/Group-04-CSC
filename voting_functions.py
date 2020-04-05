@@ -6,7 +6,7 @@ import itertools
 import copy
 
 
-def aggregate_vote_to_cost(res, profile):
+def aggregate_vote_to_cost(res, profile) -> np.ndarray:
     allocation = np.zeros(len(res))
 
     # Calculate median per project
@@ -19,7 +19,7 @@ def aggregate_vote_to_cost(res, profile):
     return allocation
 
 
-def dictatorship(ballot):
+def dictatorship(ballot) -> list:
     # Dictatorship possibilities are
     column = ballot[:, 0]
     res = []
@@ -27,8 +27,8 @@ def dictatorship(ballot):
 
     return res
 
-def sequential_plurality(A, ballot):
 
+def sequential_plurality(A, ballot) -> set:
     print('-----Sequential plurality------')
 
     # Specify how many elements you want in the social choice set
@@ -59,11 +59,10 @@ def sequential_plurality(A, ballot):
 
         A = [option for option in A if option not in res]
 
-
     return set(res)
 
 
-def plurality(A, ballot):
+def plurality(A, ballot) -> set:
     # Plurality
     column_occurrences = np.array([[0] * len(A)])
     for i in range(0, len(A)):
@@ -85,7 +84,7 @@ def plurality(A, ballot):
 
 
 # Borda
-def borda(A, ballot):
+def borda(A, ballot) -> set:
     row_occurrences = np.array([[0] * len(A)])
     for i in range(0, len(A)):
         row_occurrences = np.append(row_occurrences, [np.count_nonzero(ballot == str(A[i]), axis=0)], axis=0)
@@ -111,7 +110,7 @@ def borda(A, ballot):
     return set(res)
 
 
-def condorcet(A, ballot):
+def condorcet(A, ballot) -> set:
     graph = []
     for a, b in itertools.combinations(A, 2):
         defeats = 0
@@ -126,7 +125,6 @@ def condorcet(A, ballot):
 
     print(graph)
 
-    tie = True
     for choice in A:
         winner = True
         for edge in graph:
@@ -135,13 +133,12 @@ def condorcet(A, ballot):
 
         if winner:
             print('Condorcet winner: ' + choice)
-            tie = False
-            return set([choice])
+            return {choice}
 
     return set(A)
 
 
-def stv(A, ballot):
+def stv(A, ballot) -> None:
     # Plurality
     column_occurrences = np.array([[0] * len(A)])
     for i in range(0, len(A)):
@@ -156,15 +153,15 @@ def stv(A, ballot):
         first_col = column_occurrences[:, i]
         min_plu = np.where(first_col == np.min(first_col[np.nonzero(first_col)]))
 
-        for i in range(0, len(max_plu)):
-            index = min_plu[i]
+        for j in range(0, len(max_plu)):
+            index = min_plu[j]
             print(index)
             for x in range(0, len(index)):
                 print(A[index[x] - 1])
 
                 if len(index) < 2:
                     flatten_ballot = ballot.flatten()
-                    index_min = [i for i, v in enumerate(flatten_ballot) if A[index[x] - 1] in v]
+                    index_min = [ind for ind, v in enumerate(flatten_ballot) if A[index[x] - 1] in v]
                     print(index_min)
                     deleted_ballot = np.delete(flatten_ballot, index_min, axis=None)
                     column_occurrences = deleted_ballot
@@ -172,11 +169,10 @@ def stv(A, ballot):
 
                 else:
                     print('Tie so STV rule not applicable')
-                    break;
+                    break
 
 
-def stv2(A, ballot, remove_first=True):
-
+def stv2(A, ballot, remove_first=True) -> set:
     plurality_scores = {option: 0 for option in A}
 
     # Calculate plurality scores (how many times each option is first in someone's ballot)
@@ -217,21 +213,22 @@ def stv2(A, ballot, remove_first=True):
 
 
 # Knapsack voting for participatory budgeting
-def knapsack(A, ballot, max_cost):
+def knapsack(A, ballot, max_cost) -> list:
     # Needs a profile where each voter defines how much money they want to allocate to each of the choices
 
-    # Transpose the ballot: to see the votes per choice instead of per voter (alternatively, provide the ballot in that form)
-    ballot_T = np.transpose(ballot)
+    # Transpose the ballot: to see the votes per choice instead of per voter (alternatively, provide the ballot in
+    # that form)
+    ballot_t = np.transpose(ballot)
 
     # This will hold the final allocation per choice
     allocation = []
 
     # Go over each choice
-    for i in range(0, len(ballot_T)):
+    for i in range(0, len(ballot_t)):
         # Values per dollar: See paper "Knapsack Voting for Participatory Budgeting" for a description of this method
-        sack = np.zeros(max(ballot_T[i])).tolist()
-        for j in range(0, len(ballot_T[i])):
-            vote = ballot_T[i][j]
+        sack = np.zeros(max(ballot_t[i])).tolist()
+        for j in range(0, len(ballot_t[i])):
+            vote = ballot_t[i][j]
             for k in range(0, vote):
                 sack[k] += 1
 
@@ -245,49 +242,49 @@ def knapsack(A, ballot, max_cost):
 
 
 # Average function: allocates the average of the allocated cost for each project
-def average_vote(A, ballot):
-    ballot_T = np.transpose(ballot)
+def average_vote(A, ballot) -> list:
+    ballot_t = np.transpose(ballot)
 
     allocation = []
 
-    for i in range(0, len(ballot_T)):
-        print(ballot_T[i])
-        allocation.append(sum(ballot_T[i]) / len(A))
+    for i in range(0, len(ballot_t)):
+        print(ballot_t[i])
+        allocation.append(sum(ballot_t[i]) / len(A))
 
     return allocation
 
 
 # Main
 if __name__ == "__main__":
-    for j in range(50):
-        A = ['a', 'b', 'c', 'd']  # this can be changed to add more options in A
-        ballot = np.array([np.random.permutation(A)])
+    for iteration in range(50):
+        A_example = ['a', 'b', 'c', 'd']  # this can be changed to add more options in A
+        ballot_example = np.array([np.random.permutation(A_example)])
         n = 4  # number of voters
-        for i in range(0, n):  # change second parameter for number of voters
-            v = np.random.permutation(A)
-            ballot = np.append(ballot, [v], axis=0)
+        for idx in range(0, n):  # change second parameter for number of voters
+            vote_example = np.random.permutation(A_example)
+            ballot_example = np.append(ballot_example, [vote_example], axis=0)
 
-        print(ballot)
+        print(ballot_example)
 
         # functions
-        ballot_list = [n.tolist() for n in ballot]
-        ballot_copy = copy.deepcopy(ballot_list)    # created a copy to send to two different functions
-        res = [plurality(A, ballot), condorcet(A, ballot), borda(A, ballot), stv2(A, ballot_list),
-               sequential_plurality(A, ballot_copy)]
+        ballot_list = [n.tolist() for n in ballot_example]
+        ballot_copy = copy.deepcopy(ballot_list)  # created a copy to send to two different functions
+        result = [plurality(A_example, ballot_example), condorcet(A_example, ballot_example), borda(A_example, ballot_example), stv2(A_example, ballot_list),
+                  sequential_plurality(A_example, ballot_copy)]
 
-        if len(res) == len(set(tuple(x) for x in res)):
-            print('Iteration: ', j)
-            print(ballot)
-            print(res)
+        if len(result) == len(set(tuple(x) for x in result)):
+            print('Iteration: ', iteration)
+            print(ballot_example)
+            print(result)
             break
 
     # Knapsack trial
-    ballot = [[4, 5, 1], [3, 5, 2], [0, 0, 10]]
-    print(knapsack(['a', 'b', 'c'], ballot, [5, 5, 10]))
+    ballot_example = [[4, 5, 1], [3, 5, 2], [0, 0, 10]]
+    print(knapsack(['a', 'b', 'c'], ballot_example, [5, 5, 10]))
 
     # Average vote trial
-    print("Average function:", average_vote(['a', 'b', 'c'], ballot))
+    print("Average function:", average_vote(['a', 'b', 'c'], ballot_example))
 
     # Median aggregation trial
     print("--------Median------")
-    print(aggregate_vote_to_cost([2, 1, 3], ballot))
+    print(aggregate_vote_to_cost([2, 1, 3], ballot_example))
