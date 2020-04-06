@@ -1,9 +1,12 @@
 # Last update Tuesday 18-02 22:35
 
+import copy
+import itertools
+
+import networkx as nx
 import numpy as np
 from numpy import random
-import itertools
-import copy
+from typing import Tuple, List
 
 
 def aggregate_vote_to_cost(res, max_cost, budget, A) -> np.ndarray:
@@ -44,7 +47,6 @@ def dictatorship(ballot) -> list:
 
 
 def sequential_plurality(A, ballot) -> list:
-
     # Specify how many elements you want in the social choice set
     # Sometimes the set will have more than k elements , when there are ties
     k = 2
@@ -226,9 +228,11 @@ def stv2(A, ballot, remove_first=True) -> set:
     return set(plurality_scores.keys())
 
 
-# Knapsack voting for participatory budgeting
 def knapsack(A, ballot, max_cost) -> list:
-    # Needs a profile where each voter defines how much money they want to allocate to each of the choices
+    """
+    Knapsack voting for participatory budgeting
+    Needs a profile where each voter defines how much money they want to allocate to each of the choices
+    """
 
     # Transpose the ballot: to see the votes per choice instead of per voter (alternatively, provide the ballot in
     # that form)
@@ -255,8 +259,54 @@ def knapsack(A, ballot, max_cost) -> list:
     return allocation
 
 
-# Average function: allocates the average of the allocated cost for each project
+def knapsack_comparisons(pairs: List[Tuple[int, int]]):
+    """
+    Generate an ordered set of projects to be given budgets
+    Build a graph based on the pairs, then compute a strict rank ordering by solving weighted Minimum Feedback Arc Set
+    problem (TODO)
+    :param pairs: a set of value-for-money pair rankings obtained from voters
+    :return: result of computation
+    """
+    # Make a directed graph
+    g = nx.DiGraph()
+    # Add each of the pairwise comparisons as edges, increase/decrease weight by 1 if already present
+    for pair in pairs:
+        if pair in g.edges:
+            g.edges[pair[0], pair[1]]['weight'] += 1
+        elif (pair[1], pair[0]) in g.edges:
+            g.edges[pair[1], pair[0]]['weight'] -= 1
+        else:
+            g.add_edge(pair[0], pair[1], weight=1)
+
+    print(g.nodes)
+    print(g.edges.data('weight'))
+
+    # Reverse all edges with negative weights
+    for u, v, weight in g.edges.data('weight'):
+        if weight < 0:
+            g.add_edge(v, u, weight=-weight)
+            g.remove_edge(u, v)
+
+    print(g.nodes)
+    print(g.edges.data('weight'))
+
+    # TODO get linear order from graph
+
+    return NotImplemented
+
+
+def comparisons_test():
+    """
+    Testing the knapsack comparison function
+    """
+    pairs = [(1, 2), (1, 2), (2, 1), (1, 3), (1, 3), (1, 3), (3, 2)]
+    knapsack_comparisons(pairs)
+
+
 def average_vote(A, ballot) -> list:
+    """
+    Average function: allocates the average of the allocated cost for each project
+    """
     ballot_t = np.transpose(ballot)
 
     allocation = []
@@ -269,7 +319,7 @@ def average_vote(A, ballot) -> list:
 
 
 # Main
-if __name__ == "__main__":
+def main():
     for iteration in range(50):
         A_example = ['a', 'b', 'c', 'd']  # this can be changed to add more options in A
         ballot_example = np.array([np.random.permutation(A_example)])
@@ -284,7 +334,8 @@ if __name__ == "__main__":
         ballot_list = [n.tolist() for n in ballot_example]
         ballot_copy = copy.deepcopy(ballot_list)  # created a copy to send to two different functions
         b_copy = copy.deepcopy(ballot_list)
-        result = [plurality(A_example, ballot_example), condorcet(A_example, ballot_example), borda(A_example, ballot_example), stv2(A_example, ballot_list),
+        result = [plurality(A_example, ballot_example), condorcet(A_example, ballot_example),
+                  borda(A_example, ballot_example), stv2(A_example, ballot_list),
                   sequential_plurality(A_example, ballot_copy)]
 
         if len(result) == len(set(tuple(x) for x in result)):
@@ -301,8 +352,12 @@ if __name__ == "__main__":
     print("Average function:", average_vote(['a', 'b', 'c'], ballot_example))
 
     # Allocation by cost trial
-    max_cost_example = [4,6,10,8]
+    max_cost_example = [4, 6, 10, 8]
     result_example = sequential_plurality(A_example, b_copy)
-    budget_example  = 10
+    budget_example = 10
     print("--------Allocation------")
     print(aggregate_vote_to_cost(result_example, max_cost_example, budget_example, A_example))
+
+
+if __name__ == "__main__":
+    comparisons_test()
