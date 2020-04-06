@@ -261,9 +261,8 @@ def knapsack(A, ballot, max_cost) -> list:
 
 def knapsack_comparisons(pairs: List[Tuple[int, int]]):
     """
-    Generate an ordered set of projects to be given budgets
-    Build a graph based on the pairs, then compute a strict rank ordering by solving weighted Minimum Feedback Arc Set
-    problem (TODO)
+    Generate an ordered set of projects to be given budgets. Build a graph based on the pairs, then compute a strict
+    rank ordering by solving weighted Minimum Feedback Arc Set problem.
     :param pairs: a set of value-for-money pair rankings obtained from voters
     :return: result of computation
     """
@@ -293,6 +292,9 @@ def knapsack_comparisons(pairs: List[Tuple[int, int]]):
     print(g.edges.data('weight'))
 
     # TODO get linear order from graph
+    # Use this library
+    # https://github.com/baharev/sdopt-tearing
+    # https://www.mat.univie.ac.at/~neum/ms/minimum_feedback_arc_set.pdf
 
     return NotImplemented
 
