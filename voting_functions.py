@@ -281,9 +281,11 @@ def knapsack_comparisons(pairs: List[Tuple[int, int]]):
     print(g.nodes)
     print(g.edges.data('weight'))
 
-    # Reverse all edges with negative weights
-    for u, v, weight in g.edges.data('weight'):
-        if weight < 0:
+    # Reverse all edges with negative weights, may make problem easier to solve
+    # This list is to avoid having problems related to changing size during iteration
+    edge_data = list(g.edges.data('weight'))
+    for u, v, weight in edge_data:
+        if (u, v) in g.edges and weight < 0:
             g.add_edge(v, u, weight=-weight)
             g.remove_edge(u, v)
 
@@ -299,7 +301,7 @@ def comparisons_test():
     """
     Testing the knapsack comparison function
     """
-    pairs = [(1, 2), (1, 2), (2, 1), (1, 3), (1, 3), (1, 3), (3, 2)]
+    pairs = [(1, 2), (1, 2), (2, 1), (2, 1), (2, 1), (1, 3), (1, 3), (1, 3), (3, 2)]
     knapsack_comparisons(pairs)
 
 
