@@ -6,15 +6,30 @@ import itertools
 import copy
 
 
-def aggregate_vote_to_cost(res, profile) -> np.ndarray:
+def aggregate_vote_to_cost(res, max_cost, budget, A) -> np.ndarray:
+    # Final allocation
     allocation = np.zeros(len(res))
+    print(res)
 
-    # Calculate median per project
-    median = np.median(profile, axis=0)
-
-    # Arrange it with respect to the social choice
     for i in range(0, len(res)):
-        allocation[i] = median[res[i] - 1]
+        cost = max_cost[A.index(res[i])]
+
+        # Budget is exhausted
+        if budget <= 0:
+            break
+
+        # Assign maximum cost of option OR the leftover budget
+        allocation[i] = min([budget, cost])
+        budget -= cost
+
+    # Median kept as comments:
+    # Calculate median per project
+    # median = np.median(profile, axis=0)
+    #
+    # # Arrange it with respect to the social choice
+    # for i in range(0, len(res)):
+    #     allocation[i] = median[res[i] - 1]
+    # '''
 
     return allocation
 
@@ -28,11 +43,10 @@ def dictatorship(ballot) -> list:
     return res
 
 
-def sequential_plurality(A, ballot) -> set:
-    print('-----Sequential plurality------')
+def sequential_plurality(A, ballot) -> list:
 
     # Specify how many elements you want in the social choice set
-    # Sometimes the set will have more elements than k, when there are ties
+    # Sometimes the set will have more than k elements , when there are ties
     k = 2
     res = []
 
@@ -59,7 +73,7 @@ def sequential_plurality(A, ballot) -> set:
 
         A = [option for option in A if option not in res]
 
-    return set(res)
+    return res
 
 
 def plurality(A, ballot) -> set:
@@ -269,6 +283,7 @@ if __name__ == "__main__":
         # functions
         ballot_list = [n.tolist() for n in ballot_example]
         ballot_copy = copy.deepcopy(ballot_list)  # created a copy to send to two different functions
+        b_copy = copy.deepcopy(ballot_list)
         result = [plurality(A_example, ballot_example), condorcet(A_example, ballot_example), borda(A_example, ballot_example), stv2(A_example, ballot_list),
                   sequential_plurality(A_example, ballot_copy)]
 
@@ -285,6 +300,9 @@ if __name__ == "__main__":
     # Average vote trial
     print("Average function:", average_vote(['a', 'b', 'c'], ballot_example))
 
-    # Median aggregation trial
-    print("--------Median------")
-    print(aggregate_vote_to_cost([2, 1, 3], ballot_example))
+    # Allocation by cost trial
+    max_cost_example = [4,6,10,8]
+    result_example = sequential_plurality(A_example, b_copy)
+    budget_example  = 10
+    print("--------Allocation------")
+    print(aggregate_vote_to_cost(result_example, max_cost_example, budget_example, A_example))
