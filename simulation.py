@@ -1,6 +1,9 @@
+import copy
 import argparse
 import random as rn
 from dataclasses import dataclass
+from itertools import combinations
+from voting_functions import sequential_plurality, knapsack, average_vote
 
 import numpy as np
 
@@ -101,36 +104,88 @@ def cost_to_order_profile(profile) -> np.ndarray:
     :param profile: the cost preference profile
     :return: linear order ballot
     """
-
+    print(len(profile.shape))
     ballot = np.ndarray(profile.shape)
-    for i in range(0, len(profile)):
-        p = profile[i]
-        ballot[i] = np.argsort(-1 * p) + 1
+
+    if len(profile.shape)>1:
+        for i in range(0, len(profile)):
+            p = profile[i]
+            print(p)
+            ballot[i] = np.argsort(-1 * p) + 1
+            print(ballot[i])
+    else: 
+        ballot = np.argsort(-1 * profile) + 1
 
     return ballot
 
 
 def calculate_vote(profile) -> list:
-    # TODO
-    """
-    Calculate a list of winners, given a profile
-    :param profile: the ballot of voters
-    :return: a list of the options, from most to least important
-    """
-    return NotImplemented
+
+    A_example = [1, 2, 3, 4,5]
+
+    ballot_list = [n.tolist() for n in profile]
+    ballot_copy = copy.deepcopy(ballot_list)  # created a copy to send to two different functions
+    b_copy = copy.deepcopy(ballot_list)
+    result = np.array(average_vote(A_example, ballot_copy))
+
+    #print(result)
+
+    return result
+
+def abs_cost_difference(profile, final_cost)-> int:
+
+    diff= abs(profile-final_cost)
+
+    cost_abs=sum(sum(diff))
+
+    return cost_abs
+
+def sum_kemeny_distance(profile, final_linearorder) -> int:
+
+    agent_dist=[]
+
+    for i in profile:
+
+        agent_dist.append(kendalltau_dist(profile, final_linearorder))
+
+    sum_agent_dist=sum(agent_dist)
+
+    print(agent_dist)
+
+    print(sum_agent_dist)
+
+    return sum_agent_dist
+
+
+def kendalltau_dist(rank_a, rank_b):
+    tau = 0
+    n_candidates = len(rank_a)
+    for i, j in combinations(range(n_candidates), 2):
+        tau += (np.sign(rank_a[i] - rank_a[j]) ==
+                -np.sign(rank_b[i] - rank_b[j]))
+    return tau
 
 
 def generate_and_simulate(number_of_agents, value_dimensions, budget, num_projects):
     voter_set = generate_agents(number_of_agents, value_dimensions)
     profile = generate_profile(voter_set=voter_set, budget=budget)
     profile_pref = generate_profile_preference(voter_set=voter_set, budget=budget, num_projects=num_projects)
-    print("---Prajakta's profile----")
-    print(profile)
+    #print("---Prajakta's profile----")
+    #print(profile)
     print("---Francesca's profile----")
     print(profile_pref)
     ballot = cost_to_order_profile(profile_pref)
     print(ballot)
-    calculate_vote(profile=profile)
+    result= calculate_vote(profile_pref)
+    print(result)
+    result_order=cost_to_order_profile(result)
+    print(result_order)
+    cost_abs=abs_cost_difference(profile_pref, result)
+
+    kemeny_dis=sum_kemeny_distance(ballot, result_order)
+    #print(cost_abs)
+    print(kemeny_dis)
+
 
 
 if __name__ == "__main__":

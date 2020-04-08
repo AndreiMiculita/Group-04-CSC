@@ -316,8 +316,8 @@ def average_vote(A, ballot) -> list:
     allocation = []
 
     for i in range(0, len(ballot_t)):
-        print(ballot_t[i])
-        allocation.append(sum(ballot_t[i]) / len(A))
+        # allocation.append(sum(ballot_t[i]) / len(A)) no we should not devide by the number of options but for the number of agents
+        allocation.append(sum(ballot_t[i]) / np.size(ballot,0 ))
 
     return allocation
 
@@ -349,6 +349,7 @@ def main():
             break
 
     # Knapsack trial
+    print("KNAPSACK")
     ballot_example = [[4, 5, 1], [3, 5, 2], [0, 0, 10]]
     print(knapsack(['a', 'b', 'c'], ballot_example, [5, 5, 10]))
 
