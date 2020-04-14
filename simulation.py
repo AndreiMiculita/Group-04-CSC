@@ -7,40 +7,41 @@ from voting_functions import sequential_plurality, knapsack, average_vote
 
 import numpy as np
 
-# Random number generator seed, set to None for true random
+#Random number generator seed, set to None for true random
 seed = 51
-
 
 @dataclass
 class Agent:
-    """
-    Data class for an agent
-    contains a vector indicating their preferences
-    each dimension is in [0,1] - picture it as political orientation (left/right, traditionalist/progressivist etc)
-    """
+    # Data class for an agent
+    # contains a vector indicating their preferences
+    # each dimension is in [0,1] -picture it as political orientation (left/right, traditionalist/progressivist etc)
+
     id: int
     value_preferences: list
 
 
-def generate_agents(number_of_agents: int = 100, value_dimensions: int = 3) -> list:
-    """
-    Use this function to generate the set of voting agents
-    :param number_of_agents number of agents to generate
-    :param value_dimensions how many dimensions the agents' values have
-    :return a set of voting agents
-    """
+def generate_agents(number_of_agents: int = 100, value_dimensions: int = 3) :
+
+    # Use this function to generate the set of voting agents
+    # :param number_of_agents number of agents to generate
+    # :param value_dimensions how many dimensions the agents values have
+    # :return a set of voting agents
+
     list_of_agents = list()
+
     for i in range(number_of_agents):
         # Generate a random set of values and normalize it
-        value_prefs = [np.random.random() for _ in range(value_dimensions)]
+        value_prefs = [np.random.random() for a in range(value_dimensions)]
         value_prefs_sum = sum(value_prefs)
-        value_prefs_normalized = [float(i) / value_prefs_sum for i in value_prefs]
+        value_prefs_normalized = [(float(i) / value_prefs_sum) for i in value_prefs]
 
         list_of_agents.append(Agent(id=i, value_preferences=value_prefs_normalized))
+
     return list_of_agents
 
 
-def generate_projects(num_projects: int = 10, value_dimensions: int = 3) -> list:
+def generate_projects(num_projects: int = 10, value_dimensions: int = 3) :
+
     projects_pref = list()
 
     rn.seed(a=seed)
@@ -56,54 +57,55 @@ def generate_projects(num_projects: int = 10, value_dimensions: int = 3) -> list
     return projects_pref
 
 
-def generate_profile_preference(voter_set, budget: int = 100, num_projects: int = 10) -> np.ndarray:
+def generate_profile_preference(voter_set, budget: int = 100, num_projects: int = 10):
+
     profile = np.ndarray((len(voter_set), num_projects))
+
     for voter in voter_set:
         projects_pref = generate_projects(num_projects, len(voter_set[0].value_preferences))
-        # projects_cost = [voter.value_preferences * p for p in projects_pref]
+        #projects_cost = [voter.value_preferences * p for p in projects_pref]
         projects_cost = np.multiply(voter.value_preferences, projects_pref)
 
-        # print("------PROJECT COST----------")
-        # print (projects_cost)
+        #print("------PROJECT COST----------")
+        #print (projects_cost)
 
-        # sum_proj_pref=[sum(p) for p in projects_cost]
-        # norm_proj_pref= sum_proj_pref/sum(sum_proj_pref)
+        #sum_proj_pref=[sum(p) for p in projects_cost]
+        #norm_proj_pref= sum_proj_pref/sum(sum_proj_pref)
         sum_proj_pref = np.sum(projects_cost, axis=1)
         norm_proj_pref = np.divide(sum_proj_pref, sum(sum_proj_pref))
 
-        # print(sum_proj_pref)
-        # print("Then we normalize:")
-        # print(norm_proj_pref)
+        #print(sum_proj_pref)
+        #print("Then we normalize:")
+        #print(norm_proj_pref)
 
         profile[voter.id] = norm_proj_pref * budget
 
     return profile
 
 
-def generate_profile(voter_set, budget: int = 100) -> np.ndarray:
-    # TODO
-    """
-    Generate a profile from a set of voters
-    :param voter_set: the set of all voter agents participating in the profile
-    :param budget: the maximum budget that must be allocated
-    :return: profile: cost per project of each agent
-    """
+def generate_profile(voter_set, budget: int = 100):
+
+    # Generate a profile from a set of voters
+    # :param voter_set: the set of all voter agents participating in the profile
+    # :param budget: the maximum budget that must be allocated
+    # :return: profile: cost per project of each agent
+
     # Profile with cost per project
     profile = np.ndarray((len(voter_set), len(voter_set[0].value_preferences)))
+
     for voter in voter_set:
-        # cost_preference = [i*budget for i in voter.value_preferences]
         cost_preference = np.multiply(voter.value_preferences, budget)
         profile[voter.id] = cost_preference
 
     return profile
 
 
-def cost_to_order_profile(profile) -> np.ndarray:
-    """
-    Convert a cost preference profile to a linear order ballot
-    :param profile: the cost preference profile
-    :return: linear order ballot
-    """
+def cost_to_order_profile(profile):
+
+    # Convert a cost preference profile to a linear order ballot
+    # :param profile: the cost preference profile
+    # :return: linear order ballot
+
     print(len(profile.shape))
     ballot = np.ndarray(profile.shape)
 
@@ -113,13 +115,17 @@ def cost_to_order_profile(profile) -> np.ndarray:
             print(p)
             ballot[i] = np.argsort(-1 * p) + 1
             print(ballot[i])
-    else: 
+    else:
         ballot = np.argsort(-1 * profile) + 1
 
     return ballot
 
 
-def calculate_vote(profile) -> list:
+def calculate_vote(profile):
+
+    # Calculates final ballot give a profile and a function to be used
+    # :param profile: the cost preference profile and function to be used
+    # :return: final linear order
 
     A_example = [1, 2, 3, 4,5]
 
@@ -128,11 +134,16 @@ def calculate_vote(profile) -> list:
     b_copy = copy.deepcopy(ballot_list)
     result = np.array(average_vote(A_example, ballot_copy))
 
-    #print(result)
 
     return result
 
-def abs_cost_difference(profile, final_cost)-> int:
+
+def abs_cost_difference(profile, final_cost):
+
+    # Calculates the absolute cost difference between each agent profile and the final profile
+    # and returns the sum for all agents for all projects.
+    # :param profile: the cost preference ballot and the final cost preference
+    # :return: integer  (absolute cost difference between each agent profile and the finel profile)
 
     diff= abs(profile-final_cost)
 
@@ -140,13 +151,19 @@ def abs_cost_difference(profile, final_cost)-> int:
 
     return cost_abs
 
-def sum_kemeny_distance(profile, final_linearorder) -> int:
+
+def sum_kendalltau_dist(profile, final_linearorder):
+
+    # Calculates the absolute cost difference between each agent profile and the final profile
+    # and returns the sum for all agents for all projects.
+    # :param profile: the cost preference ballot and the final cost preference
+    # :return: integer  (absolute cost difference between each agent profile and the finel profile)
 
     agent_dist=[]
 
     for i in profile:
 
-        agent_dist.append(kendalltau_dist(profile, final_linearorder))
+        agent_dist.append(kendalltau_dist(i, final_linearorder))
 
     sum_agent_dist=sum(agent_dist)
 
@@ -156,10 +173,17 @@ def sum_kemeny_distance(profile, final_linearorder) -> int:
 
     return sum_agent_dist
 
-
 def kendalltau_dist(rank_a, rank_b):
+    # Calculates the Kendall tau rank distance which is a metric that counts the number of pairwise disagreements
+    # between two ranking lists. The larger the distance, the more dissimilar the two lists are.
+    # :param profile: the agent rank preference ballot and the final rank preference
+    # :return: integer  (number of pairwise disagreement)
+
+    print(rank_a)
+    print(rank_b)
     tau = 0
     n_candidates = len(rank_a)
+    #print (n_candidates)
     for i, j in combinations(range(n_candidates), 2):
         tau += (np.sign(rank_a[i] - rank_a[j]) ==
                 -np.sign(rank_b[i] - rank_b[j]))
@@ -179,11 +203,15 @@ def generate_and_simulate(number_of_agents, value_dimensions, budget, num_projec
     result= calculate_vote(profile_pref)
     print(result)
     result_order=cost_to_order_profile(result)
+    print('____result order_________')
     print(result_order)
     cost_abs=abs_cost_difference(profile_pref, result)
 
-    kemeny_dis=sum_kemeny_distance(ballot, result_order)
+    print('____kemeny_________')
+
+    kemeny_dis=sum_kendalltau_dist(ballot, result_order)
     #print(cost_abs)
+    print('blablabla')
     print(kemeny_dis)
 
 
