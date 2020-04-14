@@ -7,7 +7,7 @@ from voting_functions import sequential_plurality, knapsack, average_vote
 
 import numpy as np
 
-#Random number generator seed, set to None for true random
+# Random number generator seed, set to None for true random
 seed = 51
 
 @dataclass
@@ -22,7 +22,7 @@ class Agent:
     value_preferences: list
 
 
-def generate_agents(number_of_agents: int = 100, value_dimensions: int = 3) :
+def generate_agents(number_of_agents: int = 100, value_dimensions: int = 3) -> list:
     """
     Use this function to generate the set of voting agents
     :param number_of_agents number of agents to generate
@@ -43,7 +43,7 @@ def generate_agents(number_of_agents: int = 100, value_dimensions: int = 3) :
     return list_of_agents
 
 
-def generate_projects(num_projects: int = 10, value_dimensions: int = 3) :
+def generate_projects(num_projects: int = 10, value_dimensions: int = 3) -> list:
     """
     Generate a set of projects
     :param num_projects: the number of projects presented to the agents
@@ -66,7 +66,7 @@ def generate_projects(num_projects: int = 10, value_dimensions: int = 3) :
     return projects_pref
 
 
-def generate_profile_preference(voter_set, budget: int = 100, num_projects: int = 10):
+def generate_profile_preference(voter_set, budget: int = 100, num_projects: int = 10) -> np.ndarray:
     """
     Generate a profile from a set of voters
     :param voter_set: the set of all voter agents participating in the profile
@@ -89,7 +89,7 @@ def generate_profile_preference(voter_set, budget: int = 100, num_projects: int 
     return profile
 
 
-def generate_profile(voter_set, budget: int = 100):
+def generate_profile(voter_set, budget: int = 100) -> np.ndarray:
     """
     Generate a profile from a set of voters
     :param voter_set: the set of all voter agents participating in the profile
@@ -107,7 +107,7 @@ def generate_profile(voter_set, budget: int = 100):
     return profile
 
 
-def cost_to_order_profile(profile):
+def cost_to_order_profile(profile) -> np.ndarray:
     """
     Convert a cost preference profile to a linear order ballot
     :param profile: the cost preference profile
@@ -126,7 +126,7 @@ def cost_to_order_profile(profile):
     return ballot
 
 
-def calculate_vote(profile):
+def calculate_vote(profile) -> np.array:
     """
     Calculates final ballot give a profile and a function to be used
     :param profile: the cost preference profile and function to be used
@@ -144,7 +144,7 @@ def calculate_vote(profile):
     return result
 
 
-def abs_cost_difference(profile, final_cost):
+def abs_cost_difference(profile, final_cost) -> int:
     """
     Calculates the absolute cost difference between each agent profile and the final profile
     and returns the sum for all agents for all projects.
@@ -160,7 +160,7 @@ def abs_cost_difference(profile, final_cost):
     return cost_abs
 
 
-def sum_kendalltau_dist(profile, final_linearorder):
+def sum_kendalltau_dist(profile, final_linearorder)  -> int:
     """
     Calculates the absolute cost difference between each agent profile and the final profile
     and returns the sum for all agents for all projects.
@@ -179,7 +179,7 @@ def sum_kendalltau_dist(profile, final_linearorder):
 
     return sum_agent_dist
 
-def kendalltau_dist(rank_a, rank_b):
+def kendalltau_dist(rank_a, rank_b) -> int:
     """
     Calculates the Kendall tau rank distance which is a metric that counts the number of pairwise disagreements
     between two ranking lists. The larger the distance, the more dissimilar the two lists are.
@@ -201,8 +201,8 @@ def generate_and_simulate(number_of_agents, value_dimensions, budget, num_projec
     voter_set = generate_agents(number_of_agents, value_dimensions)
     profile = generate_profile(voter_set=voter_set, budget=budget)
     profile_pref = generate_profile_preference(voter_set=voter_set, budget=budget, num_projects=num_projects)
-    #print("---Prajakta's profile----")
-    #print(profile)
+    # print("---Prajakta's profile----")
+    # print(profile)
     print("---Francesca's profile----")
     print(profile_pref)
     ballot = cost_to_order_profile(profile_pref)
