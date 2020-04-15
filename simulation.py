@@ -30,17 +30,18 @@ def generate_agents(number_of_agents: int = 100, value_dimensions: int = 3) -> l
     :return a set of voting agents
     """
 
-    list_of_agents = list()
+    # N is going to be our set of agents (voters)
+    N = list()
 
     for i in range(number_of_agents):
-        # Generate a random set of values and normalize it
-        value_prefs = [np.random.random() for a in range(value_dimensions)]
-        value_prefs_sum = sum(value_prefs)
-        value_prefs_normalized = [(float(i) / value_prefs_sum) for i in value_prefs]
+        # Generate a random set of values and normalize it, this are going to be the value preferences of the agent
+        value_pr = [np.random.random() for a in range(value_dimensions)]
+        value_pr_sum = sum(value_pr)
+        value_pr_normalized = [(float(i) / value_pr_sum) for i in value_pr]
 
-        list_of_agents.append(Agent(id=i, value_preferences=value_prefs_normalized))
+        N.append(Agent(id=i, value_preferences=value_pr_normalized))
 
-    return list_of_agents
+    return N
 
 
 def generate_projects(num_projects: int = 10, value_dimensions: int = 3) -> list:
@@ -48,10 +49,11 @@ def generate_projects(num_projects: int = 10, value_dimensions: int = 3) -> list
     Generate a set of projects
     :param num_projects: the number of projects presented to the agents
     :param value_dimensions: how many dimensions the agents values have
-    :return: profile cost per project of each agent
+    :return: A set of all possible proposals (or projects)
     """
 
-    projects_pref = list()
+    # A is the set of all possible proposals (or projects)
+    A = list()
 
     rn.seed(a=seed)
 
@@ -61,9 +63,9 @@ def generate_projects(num_projects: int = 10, value_dimensions: int = 3) -> list
         project[:pref] = 1
         project_f = np.random.permutation(project)
 
-        projects_pref.append(project_f)
+        A.append(project_f)
 
-    return projects_pref
+    return A
 
 
 def generate_profile_preference(voter_set, budget: int = 100, num_projects: int = 10) -> np.ndarray:
@@ -179,21 +181,21 @@ def sum_kendalltau_dist(profile, final_linearorder)  -> int:
 
     return sum_agent_dist
 
-def kendalltau_dist(rank_a, rank_b) -> int:
+def kendalltau_dist(sigma_one, sigma_two) -> int:
     """
     Calculates the Kendall tau rank distance which is a metric that counts the number of pairwise disagreements
     between two ranking lists. The larger the distance, the more dissimilar the two lists are.
-    :param rank_a: the agent rank preference ballot
-    :param rank_b: the final rank preference obtained by the applcation of social choice function
+    :param sigma_one: the agent rank preference ballot
+    :param sigma_two: the final rank preference obtained by the applcation of social choice function
     :return: integer  (number of pairwise disagreement)
     """
 
     tau = 0
-    n_candidates = len(rank_a)
+    n_projects = len(sigma_one)
 
-    for i, j in combinations(range(n_candidates), 2):
-        tau += (np.sign(rank_a[i] - rank_a[j]) ==
-                -np.sign(rank_b[i] - rank_b[j]))
+    for i, j in combinations(range(n_projects), 2):
+        tau += (np.sign(sigma_one[i] - sigma_one[j]) ==
+                -np.sign(sigma_two[i] - sigma_two[j]))
     return tau
 
 
@@ -213,11 +215,11 @@ def generate_and_simulate(number_of_agents, value_dimensions, budget, num_projec
     print('_______result order_________')
     print(result_order)
     cost_abs=abs_cost_difference(profile_pref, result)
-    kemeny_dis=sum_kendalltau_dist(ballot, result_order)
+    kendall_dis=sum_kendalltau_dist(ballot, result_order)
     print('______absolute cost____')
     print(cost_abs)
     print('______kendalltau distance____')
-    print(kemeny_dis)
+    print(kendall_dis)
 
 
 
