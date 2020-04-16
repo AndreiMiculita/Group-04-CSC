@@ -304,7 +304,7 @@ def muliple_runs_evaluation(number_of_agents, value_dimensions, budget, num_proj
     absv = list()
 
     for i in range(0, number_of_runs):
-        print("_____RUN %d_____", i)
+        print(f"_____RUN {i}_____")
 
         # Running multiple simulations individually
         profile, voting = generate_and_simulate(number_of_agents, value_dimensions, budget, num_projects, max_cost)
