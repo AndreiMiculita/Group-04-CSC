@@ -140,7 +140,7 @@ def calculate_vote(profile,function, max_cost) -> np.array:
     :return: final linear order
     """
 
-    A_example = [1, 2, 3, 4,5]
+    A_example = list(range(1, np.size(profile,1)+1, 1))
     
     ballot_list = [n.tolist() for n in profile]
     ballot_copy = copy.deepcopy(ballot_list)  # created a copy to send to two different functions
@@ -309,12 +309,16 @@ def muliple_runs_evaluation(number_of_agents, value_dimensions, budget, num_proj
     rank_kendall=np.sum([rankdata(item, method='min') for item in kendall],0)
     rank_absv=np.sum([rankdata(item, method='min') for item in absv],0)
 
+    print("in order in each array it shows the kendall vote")
+    print("1 knapsack")
+    print("2 average_vote")
+    print("3 sequential_plurality")
+    print("4 dictatorship")
+
     print(rank_kendall)
+
+    print("and then the absolute diffrence score in the same order")
     print(rank_absv)
-
-
-
-
 
 
 if __name__ == "__main__":
@@ -334,4 +338,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     #generate_and_simulate(args.n_of_agents, args.n_of_dimensions, args.budget, args.num_projects, [4,6,8, 10, 5])
-    muliple_runs_evaluation(args.n_of_agents, args.n_of_dimensions, args.budget, args.num_projects, args.num_of_runs,[50,20,30, 0, 0])
+    muliple_runs_evaluation(args.n_of_agents, args.n_of_dimensions, args.budget, args.num_projects, args.num_of_runs,[50,20,30, 0, 0,0,0,0,0,0])
