@@ -254,6 +254,7 @@ def generate_and_simulate(number_of_agents, value_dimensions, budget, num_projec
             allocation = calculate_vote(profile_pref, f, max_cost, budget)
             order = cost_to_order_profile(allocation)
 
+
         voting[f.__name__] = {'allocation': allocation, 'order': order}
 
     # Older version in comments:

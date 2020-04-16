@@ -213,7 +213,7 @@ def sequential_plurality(A, ballot, max_cost, budget) -> dict:
 
     old_A = A
 
-    while len(res) <= len(A) - 1:
+    while len(res) < len(old_A):
         plurality_scores = {option: 0 for option in A}
 
         # Calculate plurality scores (how many times each option is first in someone's ballot)
