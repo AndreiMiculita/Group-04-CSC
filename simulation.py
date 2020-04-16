@@ -91,7 +91,7 @@ def generate_profile_preference(voter_set, budget: int = 100, num_projects: int 
 
         profile[voter.id] = norm_proj_pref * budget
 
-    profile= np.rint(profile)
+    profile = np.rint(profile)
     profile = profile.astype(int)
 
     return profile
@@ -136,7 +136,7 @@ def cost_to_order_profile(profile) -> np.ndarray:
     return ballot
 
 
-def calculate_vote(profile, function, max_cost:[int], budget:int) -> np.array:
+def calculate_vote(profile, function, max_cost: [int], budget: int) -> np.array:
     """
     Calculates final ballot give a profile and a function to be used
     :param profile: the cost preference profile and function to be used
@@ -369,6 +369,10 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    # Remove this line to get truly random numbers
+    rn.seed(51)
+    max_costs = [rn.randint(0, args.budget) for _ in range(args.num_projects)]
+
     # Evaluation method
     muliple_runs_evaluation(args.n_of_agents, args.n_of_dimensions, args.budget,
-                            args.num_projects, args.num_of_runs, [50, 20, 30, 0, 0, 0, 0, 0, 0, 0])
+                            args.num_projects, args.num_of_runs, max_costs)
