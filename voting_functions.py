@@ -314,7 +314,6 @@ def average_vote(A, ballot) -> list:
     allocation = []
 
     for i in range(0, len(ballot_t)):
-        # allocation.append(sum(ballot_t[i]) / len(A)) no we should not devide by the number of options but for the number of agents
         allocation.append(sum(ballot_t[i]) / np.size(ballot,0 ))
 
     return allocation

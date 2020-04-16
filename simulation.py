@@ -133,35 +133,34 @@ def cost_to_order_profile(profile) -> np.ndarray:
     return ballot
 
 
-def calculate_vote(profile,function, max_cost) -> np.array:
+def calculate_vote(profile, function, max_cost) -> np.array:
     """
     Calculates final ballot give a profile and a function to be used
     :param profile: the cost preference profile and function to be used
+    :param function: the voting function
+    :param max_cost: the maximum cost of the projects
     :return: final linear order
     """
 
-    A_example = list(range(1, np.size(profile,1)+1, 1))
-    
+    A_example = list(range(1, np.size(profile, 1) + 1, 1))
+
     ballot_list = [n.tolist() for n in profile]
     ballot_copy = copy.deepcopy(ballot_list)  # created a copy to send to two different functions
-    b_copy = copy.deepcopy(ballot_list)
 
-    if function=='knapsack':
+    if function == 'knapsack':
         result = np.array(knapsack(A_example, ballot_copy, max_cost))
 
-    elif function=='average_vote':
+    elif function == 'average_vote':
         result = np.array(average_vote(A_example, ballot_copy))
 
-    elif function=='sequential_plurality':
+    elif function == 'sequential_plurality':
         result = np.array(sequential_plurality(A_example, ballot_copy,len(A_example)))
 
-    elif function=='dictatorship':
+    elif function == 'dictatorship':
         result = np.array(dictatorship(ballot_copy))
 
-    else :
+    else:
         return None
-
-
 
     return result
 
@@ -175,9 +174,9 @@ def abs_cost_difference(profile, final_cost) -> int:
     :return: integer  (absolute cost difference between each agent profile and the finel profile)
     """
 
-    diff= abs(profile-final_cost)
+    diff = abs(profile-final_cost)
 
-    cost_abs=sum(sum(diff))
+    cost_abs = sum(sum(diff))
 
     return cost_abs
 
@@ -191,13 +190,12 @@ def sum_kendalltau_dist(profile, final_linearorder)  -> int:
     :return: integer  (absolute cost difference between each agent profile and the finel profile)
     """
 
-    agent_dist=[]
+    agent_dist = []
 
     for i in profile:
-
         agent_dist.append(kendalltau_dist(i, final_linearorder))
 
-    sum_agent_dist=sum(agent_dist)
+    sum_agent_dist = sum(agent_dist)
 
     return sum_agent_dist
 
@@ -221,103 +219,128 @@ def kendalltau_dist(sigma_one, sigma_two) -> int:
 
 def generate_and_simulate(number_of_agents, value_dimensions, budget, num_projects, max_cost):
 
-    max_cost=max_cost
-    A_example = np.arange(1,num_projects+1,1).tolist()
+    max_cost = max_cost
+    A_example = np.arange(1, num_projects+1, 1).tolist()
 
     voter_set = generate_agents(number_of_agents, value_dimensions)
-    #profile = generate_profile(voter_set=voter_set, budget=budget)
     profile_pref = generate_profile_preference(voter_set=voter_set, budget=budget, num_projects=num_projects)
 
-    print("---Francesca's profile----")
+    print("---Francesca's profile---")
     print(profile_pref)
     ballot = cost_to_order_profile(profile_pref)
-    profile=[profile_pref,ballot]
-    print('______profile order______')
+    profile = [profile_pref, ballot]
+    print('---Profile Order---')
     print(ballot)
 
+    # Using dictionary to store the cost allocation and linear order result of each function
+    voting = {}
+    functions = ['knapsack', 'average_vote', 'sequential_plurality', 'dictatorship']
 
-    # Knapsack trial
-    knapsack_cost= calculate_vote(profile_pref,'knapsack', max_cost)
-    knapsack_order=cost_to_order_profile(knapsack_cost)
-    knapsack=[knapsack_cost,knapsack_order]
+    for f in functions:
+        print(f)
 
-    print('_______knapsack cost_________')
-    print(knapsack_cost)
-    print('_______knapsack order_________')
-    print(knapsack_order)
+        if f == 'sequential_plurality':
+            order = calculate_vote(ballot, f, max_cost)
+            cost = aggregate_vote_to_cost(order, max_cost, budget, A_example)
 
-    # Average vote trial
-    average_cost= calculate_vote(profile_pref,'average_vote', max_cost)
-    average_order=cost_to_order_profile(average_cost)
-    average=[average_cost, average_order]
+        elif f == 'dictatorship':
+            cost, n_agent = calculate_vote(profile_pref, f, max_cost)
+            order = ballot[n_agent, :]
 
-    print('_______average cost_________')
-    print(average_cost)
-    print('_______average order_________')
-    print(average_order)
+        else:
+            cost = calculate_vote(profile_pref, f, max_cost)
+            order = cost_to_order_profile(cost)
 
-    # Sequential plurality trial
-    sequential_order= calculate_vote(ballot,'sequential_plurality', max_cost)
-    sequential_cost=aggregate_vote_to_cost(sequential_order, max_cost, budget, A_example)
-    sequential=[sequential_cost,sequential_order]
+        voting[f] = {'cost': cost, 'order': order}
 
-    print('_______sequential cost_________')
-    print(sequential_cost)
-    print('_______sequential order_________')
-    print(sequential_order)
+    # Older version in comments:
+    # knapsack_cost = calculate_vote(profile_pref, 'knapsack', max_cost)
+    # knapsack_order = cost_to_order_profile(knapsack_cost)
+    # knapsack = [knapsack_cost, knapsack_order]
+    #
+    # print('_______knapsack cost_________')
+    # print(knapsack_cost)
+    # print('_______knapsack order_________')
+    # print(knapsack_order)
+    #
+    # # Average vote trial
+    # average_cost = calculate_vote(profile_pref, 'average_vote', max_cost)
+    # average_order = cost_to_order_profile(average_cost)
+    # average = [average_cost, average_order]
+    #
+    # print('_______average cost_________')
+    # print(average_cost)
+    # print('_______average order_________')
+    # print(average_order)
+    #
+    # # Sequential plurality trial
+    # sequential_order = calculate_vote(ballot, 'sequential_plurality', max_cost)
+    # sequential_cost = aggregate_vote_to_cost(sequential_order, max_cost, budget, A_example)
+    # sequential = [sequential_cost, sequential_order]
+    #
+    # print('_______sequential cost_________')
+    # print(sequential_cost)
+    # print('_______sequential order_________')
+    # print(sequential_order)
+    #
+    # # Dictatorship trial
+    # dictatorship_cost, n_agent = calculate_vote(profile_pref, 'dictatorship', max_cost)
+    # dictatorship_order = ballot[n_agent, :]
+    # dictatorship = [dictatorship_cost, dictatorship_order]
+    #
+    # print('_______dictatorship cost_________')
+    # print(dictatorship_cost)
+    # print('_______dictatorship order_________')
+    # print(dictatorship_order)
 
-    # Dictatorship trial
-    dictatorship_cost,n_agent= calculate_vote(profile_pref,'dictatorship', max_cost)
-    dictatorship_order=ballot[n_agent,:]
-    dictatorship=[dictatorship_cost,dictatorship_order]
+    print(voting)
 
-    print('_______dictatorship cost_________')
-    print(dictatorship_cost)
-    print('_______dictatorship order_________')
-    print(dictatorship_order)
-
-    return profile, knapsack, average, sequential, dictatorship
+    return profile, voting # knapsack, average, sequential, dictatorship, voting
 
 
 def muliple_runs_evaluation(number_of_agents, value_dimensions, budget, num_projects, number_of_runs, max_cost):
 
-    kendall=list()
-    absv=list()
+    kendall = list()
+    absv = list()
+
     for i in range(0, number_of_runs):
-        print("_____RUN %d_____",i)
+        print("_____RUN %d_____", i)
 
+        # Running multiple simulations individually
+        profile, voting = generate_and_simulate(number_of_agents, value_dimensions, budget, num_projects, max_cost)
 
-        #Running multiple simulations individually
-        profile,knapsack,average,sequential, dictatorship =generate_and_simulate(number_of_agents, 
-            value_dimensions, budget, num_projects, max_cost)
+        order = []
+        cost = []
+        for f in voting.keys():
+            order.append(sum_kendalltau_dist(profile[1], voting[f]['order']))
+            cost.append(abs_cost_difference(profile[0], voting[f]['cost']))
 
-        knap_kendall=sum_kendalltau_dist(profile[1], knapsack[1])
-        knap_abs=abs_cost_difference(profile[0], knapsack[0])
+        kendall.append([order])
+        absv.append([cost])
 
-        av_kendall=sum_kendalltau_dist(profile[1], average[1])
-        av_abs=abs_cost_difference(profile[0], average[0])
+        # knap_kendall = sum_kendalltau_dist(profile[1], knapsack[1])
+        # knap_abs = abs_cost_difference(profile[0], knapsack[0])
 
-        seq_kendall=sum_kendalltau_dist(profile[1], sequential[1])
-        seq_abs=abs_cost_difference(profile[0], sequential[0])
-        dict_kendall=sum_kendalltau_dist(profile[1], dictatorship[1])
-        dict_abs=abs_cost_difference(profile[0], dictatorship[0])
+        # av_kendall = sum_kendalltau_dist(profile[1], average[1])
+        # av_abs = abs_cost_difference(profile[0], average[0])
 
-        kendall.append([knap_kendall, av_kendall,seq_kendall, dict_kendall])
-        absv.append([knap_abs, av_abs,seq_abs, dict_abs])
+        # seq_kendall = sum_kendalltau_dist(profile[1], sequential[1])
+        # seq_abs = abs_cost_difference(profile[0], sequential[0])
 
+        # dict_kendall = sum_kendalltau_dist(profile[1], dictatorship[1])
+        # dict_abs = abs_cost_difference(profile[0], dictatorship[0])
 
-    rank_kendall=np.sum([rankdata(item, method='min') for item in kendall],0)
-    rank_absv=np.sum([rankdata(item, method='min') for item in absv],0)
+        # kendall.append([knap_kendall, av_kendall, seq_kendall, dict_kendall])
+        # absv.append([knap_abs, av_abs, seq_abs, dict_abs])
 
-    print("in order in each array it shows the kendall vote")
-    print("1 knapsack")
-    print("2 average_vote")
-    print("3 sequential_plurality")
-    print("4 dictatorship")
+    rank_kendall = np.sum([rankdata(item, method='min') for item in kendall], 0)
+    rank_absv = np.sum([rankdata(item, method='min') for item in absv], 0)
 
+    print("Array elements in the following order")
+    print("1: Knapsack 2: Average 3: Sequential Plurality 4: Dictatorship")
     print(rank_kendall)
 
-    print("and then the absolute diffrence score in the same order")
+    print("and then the absolute difference score in the same order")
     print(rank_absv)
 
 
@@ -329,7 +352,6 @@ if __name__ == "__main__":
                         help='number of personal opinions (dimensions) of the agents')
     parser.add_argument('budget', type=int, default=100,
                         help='Total budget that needs to be distributed over projects')
-
     parser.add_argument('num_projects', type=int, default=10,
                         help='Total number of projects over which the budget needs to be distributed')
     parser.add_argument('num_of_runs', type=int, default=10,
@@ -337,5 +359,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    #generate_and_simulate(args.n_of_agents, args.n_of_dimensions, args.budget, args.num_projects, [4,6,8, 10, 5])
-    muliple_runs_evaluation(args.n_of_agents, args.n_of_dimensions, args.budget, args.num_projects, args.num_of_runs,[50,20,30, 0, 0,0,0,0,0,0])
+    # Generate environment and simulate participatory budgeting scenario
+    generate_and_simulate(args.n_of_agents, args.n_of_dimensions, args.budget, args.num_projects, [4, 6, 8, 10, 5])
+
+    # Evaluation method
+    muliple_runs_evaluation(args.n_of_agents, args.n_of_dimensions, args.budget,
+                            args.num_projects, args.num_of_runs, [50, 20, 30, 0, 0, 0, 0, 0, 0, 0])
