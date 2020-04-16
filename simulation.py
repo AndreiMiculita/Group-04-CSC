@@ -60,7 +60,7 @@ def generate_projects(num_projects: int = 10, value_dimensions: int = 3) -> list
     rn.seed(a=seed)
 
     for i in range(num_projects):
-        pref = rn.randrange(0, value_dimensions + 1, 1)
+        pref = rn.randrange(1, value_dimensions + 1, 1)
         project = np.zeros(value_dimensions)
         project[:pref] = 1
         project_f = np.random.permutation(project)
@@ -83,6 +83,7 @@ def generate_profile_preference(voter_set, budget: int = 100, num_projects: int 
 
     for voter in voter_set:
         projects_pref = generate_projects(num_projects, len(voter_set[0].value_preferences))
+
         projects_cost = np.multiply(voter.value_preferences, projects_pref)
 
         sum_proj_pref = np.sum(projects_cost, axis=1)
@@ -232,7 +233,7 @@ def generate_and_simulate(number_of_agents, value_dimensions, budget, num_projec
     voter_set = generate_agents(number_of_agents, value_dimensions)
     profile_pref = generate_profile_preference(voter_set=voter_set, budget=budget, num_projects=num_projects)
 
-    print("---Francesca's profile---")
+    print("---Profile---")
     print(profile_pref)
     ballot = cost_to_order_profile(profile_pref)
     profile = [profile_pref, ballot]
