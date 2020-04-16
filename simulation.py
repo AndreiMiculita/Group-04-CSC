@@ -4,7 +4,7 @@ import random as rn
 from dataclasses import dataclass
 from itertools import combinations
 from scipy.stats import rankdata
-from voting_functions import sequential_plurality, knapsack, average_vote, aggregate_vote_to_cost
+from voting_functions import sequential_plurality, knapsack, average_vote, aggregate_vote_to_cost, dictatorship
 
 import numpy as np
 
@@ -155,6 +155,9 @@ def calculate_vote(profile,function, max_cost) -> np.array:
     elif function=='sequential_plurality':
         result = np.array(sequential_plurality(A_example, ballot_copy,len(A_example)))
 
+    elif function=='dictatorship':
+        result = np.array(dictatorship(ballot_copy))
+
     else :
         return None
 
@@ -263,8 +266,17 @@ def generate_and_simulate(number_of_agents, value_dimensions, budget, num_projec
     print('_______sequential order_________')
     print(sequential_order)
 
+    # Dictatorship trial
+    dictatorship_cost,n_agent= calculate_vote(profile_pref,'dictatorship', max_cost)
+    dictatorship_order=ballot[n_agent,:]
+    dictatorship=[dictatorship_cost,dictatorship_order]
 
-    return profile, knapsack, average, sequential
+    print('_______dictatorship cost_________')
+    print(dictatorship_cost)
+    print('_______dictatorship order_________')
+    print(dictatorship_order)
+
+    return profile, knapsack, average, sequential, dictatorship
 
 
 def muliple_runs_evaluation(number_of_agents, value_dimensions, budget, num_projects, number_of_runs, max_cost):
@@ -276,7 +288,7 @@ def muliple_runs_evaluation(number_of_agents, value_dimensions, budget, num_proj
 
 
         #Running multiple simulations individually
-        profile,knapsack,average,sequential=generate_and_simulate(number_of_agents, 
+        profile,knapsack,average,sequential, dictatorship =generate_and_simulate(number_of_agents, 
             value_dimensions, budget, num_projects, max_cost)
 
         knap_kendall=sum_kendalltau_dist(profile[1], knapsack[1])
@@ -287,12 +299,12 @@ def muliple_runs_evaluation(number_of_agents, value_dimensions, budget, num_proj
 
         seq_kendall=sum_kendalltau_dist(profile[1], sequential[1])
         seq_abs=abs_cost_difference(profile[0], sequential[0])
+        dict_kendall=sum_kendalltau_dist(profile[1], dictatorship[1])
+        dict_abs=abs_cost_difference(profile[0], dictatorship[0])
 
-        kendall.append([knap_kendall, av_kendall,seq_kendall])
-        absv.append([knap_abs, av_abs,seq_abs])
+        kendall.append([knap_kendall, av_kendall,seq_kendall, dict_kendall])
+        absv.append([knap_abs, av_abs,seq_abs, dict_abs])
 
-        #print(kendall)
-        #print(absv)
 
     rank_kendall=np.sum([rankdata(item, method='min') for item in kendall],0)
     rank_absv=np.sum([rankdata(item, method='min') for item in absv],0)
@@ -322,4 +334,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     #generate_and_simulate(args.n_of_agents, args.n_of_dimensions, args.budget, args.num_projects, [4,6,8, 10, 5])
-    muliple_runs_evaluation(args.n_of_agents, args.n_of_dimensions, args.budget, args.num_projects, 1000,[50,20,30, 0, 0])
+    muliple_runs_evaluation(args.n_of_agents, args.n_of_dimensions, args.budget, args.num_projects, args.num_of_runs,[50,20,30, 0, 0])

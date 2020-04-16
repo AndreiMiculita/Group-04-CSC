@@ -38,11 +38,10 @@ def aggregate_vote_to_cost(res, max_cost, budget, A) -> np.ndarray:
 
 def dictatorship(ballot) -> list:
     # Dictatorship possibilities are
-    column = ballot[:, 0]
-    res = []
-    [res.append(x) for x in column if x not in res]
+    agent=random.randint(1,len(ballot))
+    res = np.transpose(ballot)[:, agent]
 
-    return res
+    return res, agent
 
 
 def sequential_plurality(A, ballot, k) -> list:
@@ -338,8 +337,8 @@ def main():
         ballot_list = [n.tolist() for n in ballot_example]
         ballot_copy = copy.deepcopy(ballot_list)  # created a copy to send to two different functions
         b_copy = copy.deepcopy(ballot_list)
-        result = [#plurality(A_example, ballot_example), condorcet(A_example, ballot_example),
-                  #borda(A_example, ballot_example), stv2(A_example, ballot_list),
+        result = [plurality(A_example, ballot_example), condorcet(A_example, ballot_example),
+                  borda(A_example, ballot_example), stv2(A_example, ballot_list),
                   sequential_plurality(A_example, ballot_copy,2)]
 
         if len(result) == len(set(tuple(x) for x in result)):
