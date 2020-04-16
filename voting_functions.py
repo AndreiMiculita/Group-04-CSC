@@ -211,6 +211,8 @@ def sequential_plurality(A, ballot, max_cost, budget) -> dict:
     # Sometimes the set will have more than k elements , when there are ties
     res = []
 
+    old_A = A
+
     while len(res) <= len(A) - 1:
         plurality_scores = {option: 0 for option in A}
 
@@ -236,16 +238,17 @@ def sequential_plurality(A, ballot, max_cost, budget) -> dict:
     # Final allocation
     allocation = dict()
 
-    for i in range(0, len(res)):
-        cost = max_cost[A.index(res[i])]
+    for i, r in enumerate(res):
+        print("index", old_A.index(r))
+        cost = max_cost[old_A.index(r)]
 
         # Budget is exhausted
         if budget <= 0:
             break
 
         # Assign maximum cost of option OR the leftover budget
-        allocation[i] = min([budget, cost])
-        budget -= cost
+        allocation[i] = min(budget, cost)
+        budget -= min(budget, cost)
 
     # Median kept as comments:
     # Calculate median per project

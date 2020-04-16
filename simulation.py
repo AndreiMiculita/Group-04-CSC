@@ -244,9 +244,12 @@ def generate_and_simulate(number_of_agents, value_dimensions, budget, num_projec
 
     for f in functions:
         if f == sequential_plurality:
-            # allocation = calculate_vote(ballot, f, max_cost, budget)
-            # order = cost_to_order_profile(allocation)
-            pass
+            allocation = calculate_vote(ballot, f, max_cost, budget)
+            allocation_list = list(allocation)
+            # Pad with zeros
+            allocation_list += [0] * (num_projects - len(allocation_list))
+            allocation = np.array(allocation_list)
+            order = cost_to_order_profile(allocation)
         else:
             allocation = calculate_vote(profile_pref, f, max_cost, budget)
             order = cost_to_order_profile(allocation)
@@ -293,7 +296,6 @@ def generate_and_simulate(number_of_agents, value_dimensions, budget, num_projec
     # print('_______dictatorship order_________')
     # print(dictatorship_order)
 
-    print(voting)
     for x in voting:
         print(x)
         for y in voting[x]:
@@ -305,6 +307,9 @@ def generate_and_simulate(number_of_agents, value_dimensions, budget, num_projec
 def muliple_runs_evaluation(number_of_agents, value_dimensions, budget, num_projects, number_of_runs, max_cost):
     kendall = list()
     absv = list()
+
+    print(f"The costs of the projects are: {max_cost}.")
+    print(f"The total budget is {budget}.")
 
     for i in range(0, number_of_runs):
         print(f"_____RUN {i}_____")
@@ -361,9 +366,6 @@ if __name__ == "__main__":
                         help='Total number of simulations to perform')
 
     args = parser.parse_args()
-
-    # Generate environment and simulate participatory budgeting scenario
-    generate_and_simulate(args.n_of_agents, args.n_of_dimensions, args.budget, args.num_projects, [4, 6, 8, 10, 5])
 
     # Evaluation method
     muliple_runs_evaluation(args.n_of_agents, args.n_of_dimensions, args.budget,
