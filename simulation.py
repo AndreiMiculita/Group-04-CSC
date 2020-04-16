@@ -240,10 +240,9 @@ def generate_and_simulate(number_of_agents, value_dimensions, budget, num_projec
 
     # Using dictionary to store the cost allocation and linear order result of each function
     voting = {}
-    functions = [knapsack, average_vote, sequential_plurality, dictatorship]
+    functions = [knapsack, average_vote, dictatorship, sequential_plurality]
 
     for f in functions:
-        print(f)
         if f == sequential_plurality:
             # allocation = calculate_vote(ballot, f, max_cost, budget)
             # order = cost_to_order_profile(allocation)
@@ -252,7 +251,7 @@ def generate_and_simulate(number_of_agents, value_dimensions, budget, num_projec
             allocation = calculate_vote(profile_pref, f, max_cost, budget)
             order = cost_to_order_profile(allocation)
 
-        voting[f] = {'allocation': allocation, 'order': order}
+        voting[f.__name__] = {'allocation': allocation, 'order': order}
 
     # Older version in comments:
     # knapsack_cost = calculate_vote(profile_pref, 'knapsack', max_cost)
@@ -295,6 +294,10 @@ def generate_and_simulate(number_of_agents, value_dimensions, budget, num_projec
     # print(dictatorship_order)
 
     print(voting)
+    for x in voting:
+        print(x)
+        for y in voting[x]:
+            print(y, ':', voting[x][y])
 
     return profile, voting  # knapsack, average, sequential, dictatorship, voting
 
