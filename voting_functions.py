@@ -175,13 +175,17 @@ def knapsack(A, ballot, max_cost, budget) -> dict:
     # Go over each choice
     for i in range(0, len(ballot_t)):
         # Values per dollar: See paper "Knapsack Voting for Participatory Budgeting" for a description of this method
-        sack = np.zeros(max(ballot_t[i])).tolist()
+        # sack = np.zeros(max(ballot_t[i])).tolist()
+
+        sack = np.zeros(max_cost[i]).tolist()
         for j in range(0, len(ballot_t[i])):
             vote = ballot_t[i][j]
             for k in range(0, vote):
-                sack[k] += 1
+                if k < len(sack):
+                    sack[k] += 1
 
         # The final allocation is the maximum amount of values per dollar for each choice
+        sack = [v for v in sack if v != 0]
         if len(set(sack)) != 1:
             allocation.append(len([v for v in sack if v != min(sack)]))
         else:
