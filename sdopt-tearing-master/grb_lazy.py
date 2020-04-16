@@ -7,7 +7,7 @@ from traceback import print_exc
 from sys import stderr
 from gurobipy import GRB, LinExpr, Model
 from six import iteritems
-from networkx import is_directed_acyclic_graph, shortest_path
+from networkx import is_directed_acyclic_graph, shortest_path, nx
 from grb_simplifier import iteratively_remove_runs_and_bypasses
 from mfes import noncopy_split_to_nontrivial_sccs
 from utils import info_short as info
@@ -26,7 +26,7 @@ def solve_problem(g_orig, stats, feasible_sol=None):
     elims, cost = [ ], 0
     g2 = g_orig.copy()
     # Remove self-loops
-    for u, v, d in g_orig.selfloop_edges(data=True):
+    for u, v, d in nx.selfloop_edges(g_orig, data=True):
         g2.remove_edge(u, v)
         elims.append((u,v))
         cost += d['weight']
