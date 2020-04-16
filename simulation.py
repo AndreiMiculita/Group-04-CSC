@@ -3,12 +3,12 @@ import argparse
 import random as rn
 from dataclasses import dataclass
 from itertools import combinations
-from voting_functions import sequential_plurality, knapsack, average_vote
+from voting_functions import sequential_plurality, knapsack, average_vote, aggregate_vote_to_cost
 
 import numpy as np
 
 # Random number generator seed, set to None for true random
-seed = 51
+seed = None
 
 @dataclass
 class Agent:
@@ -88,6 +88,8 @@ def generate_profile_preference(voter_set, budget: int = 100, num_projects: int 
 
         profile[voter.id] = norm_proj_pref * budget
 
+    profile= profile.astype(int)
+
     return profile
 
 
@@ -125,10 +127,12 @@ def cost_to_order_profile(profile) -> np.ndarray:
     else:
         ballot = np.argsort(-1 * profile) + 1
 
+    ballot= ballot.astype(int)
+
     return ballot
 
 
-def calculate_vote(profile) -> np.array:
+def calculate_vote(profile,function, max_cost) -> np.array:
     """
     Calculates final ballot give a profile and a function to be used
     :param profile: the cost preference profile and function to be used
@@ -136,11 +140,23 @@ def calculate_vote(profile) -> np.array:
     """
 
     A_example = [1, 2, 3, 4,5]
-
+    
     ballot_list = [n.tolist() for n in profile]
     ballot_copy = copy.deepcopy(ballot_list)  # created a copy to send to two different functions
     b_copy = copy.deepcopy(ballot_list)
-    result = np.array(average_vote(A_example, ballot_copy))
+
+    if function=='knapsack':
+        result = np.array(knapsack(A_example, ballot_copy, max_cost))
+
+    elif function=='average_vote':
+        result = np.array(average_vote(A_example, ballot_copy))
+
+    elif function=='sequential_plurality':
+        result = np.array(sequential_plurality(A_example, ballot_copy,3))
+
+    else :
+        return None
+
 
 
     return result
@@ -200,17 +216,47 @@ def kendalltau_dist(sigma_one, sigma_two) -> int:
 
 
 def generate_and_simulate(number_of_agents, value_dimensions, budget, num_projects):
+
+    max_cost=[4,6,8,10,5]
+    A_example = [1, 2, 3, 4,5]
+
     voter_set = generate_agents(number_of_agents, value_dimensions)
     profile = generate_profile(voter_set=voter_set, budget=budget)
     profile_pref = generate_profile_preference(voter_set=voter_set, budget=budget, num_projects=num_projects)
-    # print("---Prajakta's profile----")
-    # print(profile)
+
     print("---Francesca's profile----")
     print(profile_pref)
     ballot = cost_to_order_profile(profile_pref)
-    result= calculate_vote(profile_pref)
-    print('_______result costs_________')
-    print(result)
+    print('______profile order______')
+    print(ballot)
+
+    # Knapsack trial
+    knapsack_cost= calculate_vote(profile_pref,'knapsack', max_cost)
+    knapsack_order=cost_to_order_profile(knapsack_cost)
+
+    print('_______knapsack cost_________')
+    print(knapsack_cost)
+    print('_______knapsack order_________')
+    print(knapsack_order)
+
+    # Average vote trial
+    average_cost= calculate_vote(profile_pref,'average_vote', max_cost)
+    average_order=cost_to_order_profile(average_cost)
+
+    print('_______average cost_________')
+    print(average_cost)
+    print('_______average order_________')
+    print(average_order)
+
+    sequential_order= calculate_vote(ballot,'sequential_plurality', max_cost)
+    sequential_cost=aggregate_vote_to_cost(sequential_order, max_cost, budget, A_example)
+
+    print('_______sequential cost_________')
+    print(sequential_cost)
+    print('_______sequential order_________')
+    print(sequential_order)
+
+    """
     result_order=cost_to_order_profile(result)
     print('_______result order_________')
     print(result_order)
@@ -220,6 +266,9 @@ def generate_and_simulate(number_of_agents, value_dimensions, budget, num_projec
     print(cost_abs)
     print('______kendalltau distance____')
     print(kendall_dis)
+    """
+
+
 
 
 

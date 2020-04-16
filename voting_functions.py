@@ -12,7 +12,6 @@ from typing import Tuple, List
 def aggregate_vote_to_cost(res, max_cost, budget, A) -> np.ndarray:
     # Final allocation
     allocation = np.zeros(len(res))
-    print(res)
 
     for i in range(0, len(res)):
         cost = max_cost[A.index(res[i])]
@@ -46,14 +45,13 @@ def dictatorship(ballot) -> list:
     return res
 
 
-def sequential_plurality(A, ballot) -> list:
+def sequential_plurality(A, ballot, k) -> list:
     # Specify how many elements you want in the social choice set
     # Sometimes the set will have more than k elements , when there are ties
-    k = 2
+    k = k
     res = []
 
     while len(res) <= k:
-        print(k)
         plurality_scores = {option: 0 for option in A}
 
         # Calculate plurality scores (how many times each option is first in someone's ballot)
@@ -68,7 +66,6 @@ def sequential_plurality(A, ballot) -> list:
             if score == max_score:
                 res.append(option)
 
-        print(res)
         # Remove the maximum option from ballot and from list of options
         for i in range(len(ballot)):
             ballot[i] = [e for e in ballot[i] if e not in res]
@@ -238,6 +235,7 @@ def knapsack(A, ballot, max_cost) -> list:
     # that form)
     ballot_t = np.transpose(ballot)
 
+
     # This will hold the final allocation per choice
     allocation = []
 
@@ -324,8 +322,9 @@ def average_vote(A, ballot) -> list:
 
 # Main
 def main():
+    
     for iteration in range(50):
-        A_example = ['a', 'b', 'c', 'd']  # this can be changed to add more options in A
+        A_example = [1, 2, 3, 4]  # this can be changed to add more options in A
         ballot_example = np.array([np.random.permutation(A_example)])
         n = 4  # number of voters
         for idx in range(0, n):  # change second parameter for number of voters
@@ -338,15 +337,16 @@ def main():
         ballot_list = [n.tolist() for n in ballot_example]
         ballot_copy = copy.deepcopy(ballot_list)  # created a copy to send to two different functions
         b_copy = copy.deepcopy(ballot_list)
-        result = [plurality(A_example, ballot_example), condorcet(A_example, ballot_example),
-                  borda(A_example, ballot_example), stv2(A_example, ballot_list),
-                  sequential_plurality(A_example, ballot_copy)]
+        result = [#plurality(A_example, ballot_example), condorcet(A_example, ballot_example),
+                  #borda(A_example, ballot_example), stv2(A_example, ballot_list),
+                  sequential_plurality(A_example, ballot_copy,2)]
 
         if len(result) == len(set(tuple(x) for x in result)):
             print('Iteration: ', iteration)
             print(ballot_example)
             print(result)
             break
+        
 
     # Knapsack trial
     print("KNAPSACK")
@@ -357,12 +357,13 @@ def main():
     print("Average function:", average_vote(['a', 'b', 'c'], ballot_example))
 
     # Allocation by cost trial
+    A_example = [1, 2, 3, 4]
     max_cost_example = [4, 6, 10, 8]
-    result_example = sequential_plurality(A_example, b_copy)
+    result_example = sequential_plurality(A_example, b_copy,2)
     budget_example = 10
     print("--------Allocation------")
     print(aggregate_vote_to_cost(result_example, max_cost_example, budget_example, A_example))
 
 
 if __name__ == "__main__":
-    comparisons_test()
+    main()
