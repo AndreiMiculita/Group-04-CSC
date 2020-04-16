@@ -1,2 +1,6 @@
+six
+gurobipy
 numpy
 networkx
+sympy
+namedlist
