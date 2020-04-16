@@ -90,6 +90,7 @@ def generate_profile_preference(voter_set, budget: int = 100, num_projects: int 
 
         profile[voter.id] = norm_proj_pref * budget
 
+    profile= np.rint(profile)
     profile = profile.astype(int)
 
     return profile
@@ -346,7 +347,7 @@ def muliple_runs_evaluation(number_of_agents, value_dimensions, budget, num_proj
     rank_absv = np.sum([rankdata(item, method='min') for item in absv], 0)
 
     print("Array elements in the following order")
-    print("1: Knapsack 2: Average 3: Sequential Plurality 4: Dictatorship")
+    print("1: Knapsack 2: Average 3: Dictatorship 4: Sequential plurality")
     print(rank_kendall)
 
     print("and then the absolute difference score in the same order")
