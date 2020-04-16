@@ -90,6 +90,7 @@ def generate_profile_preference(voter_set, budget: int = 100, num_projects: int 
 
         profile[voter.id] = norm_proj_pref * budget
 
+    profile= np.rint(profile)
     profile = profile.astype(int)
 
     return profile
