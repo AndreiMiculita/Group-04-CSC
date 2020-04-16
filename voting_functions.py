@@ -48,7 +48,7 @@ def dictatorship(ballot) -> list:
 def sequential_plurality(A, ballot, k) -> list:
     # Specify how many elements you want in the social choice set
     # Sometimes the set will have more than k elements , when there are ties
-    k = k
+    k = k-1
     res = []
 
     while len(res) <= k:
@@ -65,6 +65,7 @@ def sequential_plurality(A, ballot, k) -> list:
         for option, score in plurality_scores.items():
             if score == max_score:
                 res.append(option)
+                break
 
         # Remove the maximum option from ballot and from list of options
         for i in range(len(ballot)):
@@ -359,7 +360,9 @@ def main():
     # Allocation by cost trial
     A_example = [1, 2, 3, 4]
     max_cost_example = [4, 6, 10, 8]
-    result_example = sequential_plurality(A_example, b_copy,2)
+    b_copy=[[4,3,1,2],[3,1,4,2],[2,4,3,1],[4,3,2,1]]
+    result_example = sequential_plurality(A_example, b_copy,4)
+    print(result_example)
     budget_example = 10
     print("--------Allocation------")
     print(aggregate_vote_to_cost(result_example, max_cost_example, budget_example, A_example))
