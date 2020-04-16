@@ -152,7 +152,7 @@ def calculate_vote(profile, function, max_cost:[int], budget:int) -> np.array:
 
     attributes = function(A_example, ballot_copy, max_cost, budget)
     # Maybe the dict isn't sorted by keys
-    result = np.array([attributes[key] for key in sorted(attributes.keys(), reverse=True)])
+    result = np.array([attributes[key] for key in sorted(attributes.keys(), reverse=False)])
 
     # if function == 'knapsack':
     #     result = np.array(knapsack(A_example, ballot_copy, max_cost))
@@ -254,7 +254,6 @@ def generate_and_simulate(number_of_agents, value_dimensions, budget, num_projec
         else:
             allocation = calculate_vote(profile_pref, f, max_cost, budget)
             order = cost_to_order_profile(allocation)
-
 
         voting[f.__name__] = {'allocation': allocation, 'order': order}
 
