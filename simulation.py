@@ -94,6 +94,15 @@ def generate_profile_preference(voter_set, budget: int = 100, num_projects: int 
     profile = np.rint(profile)
     profile = profile.astype(int)
 
+    # Due to rounding errors, the sum for each row may be bigger than the budget, so decrease some allocations
+    for x, row in enumerate(profile):
+        while np.sum(row) > budget:
+            idx = rn.randint(0, len(row)-1)
+            profile[x][idx] = profile[x][idx] - 1
+
+    print("summing", np.sum(profile, axis=1))
+    print(profile)
+
     return profile
 
 
