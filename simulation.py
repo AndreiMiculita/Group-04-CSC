@@ -380,10 +380,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Remove this line to get truly random numbers
-    rn.seed(51)
     # Generate max_costs, assuming no cost is greater than half the budget, and there are more low cost projects
     # Outputs at 1 are most frequent, falling off linearly towards budget/2
-    max_costs = [int(np.floor(abs(rn.random() - rn.random()) * (args.budget / 2) + 1)) for _ in range(args.num_projects)]
+    max_costs = [int(np.floor(abs(rn.random() - rn.random()) * args.budget + 1)) for _ in range(args.num_projects)]
 
     # Evaluation method
     muliple_runs_evaluation(args.n_of_agents, args.n_of_dimensions, args.budget,
