@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from itertools import combinations
 from scipy.stats import rankdata
 from voting_functions import sequential_plurality, knapsack, average_vote, dictatorship
+from tabulate import tabulate
 
 import numpy as np
 
@@ -356,12 +357,7 @@ def muliple_runs_evaluation(number_of_agents, value_dimensions, budget, num_proj
     rank_kendall = np.sum([rankdata(item, method='min') for item in kendall], 0)
     rank_absv = np.sum([rankdata(item, method='min') for item in absv], 0)
 
-    print("Array elements in the following order")
-    print("1: Knapsack 2: Average 3: Dictatorship 4: Sequential plurality")
-    print(rank_kendall)
-
-    print("and then the absolute difference score in the same order")
-    print(rank_absv)
+    print(tabulate([["Kendall score"] + list(rank_kendall), ["Abs diff"] + list(rank_absv)], headers=['Ranking function', 'Knapsack', 'Average', 'Dictatorship', 'Sequential plurality']))
 
 
 if __name__ == "__main__":

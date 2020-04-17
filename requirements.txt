@@ -4,3 +4,4 @@ numpy
 networkx
 sympy
 namedlist
+tabulate
