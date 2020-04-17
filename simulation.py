@@ -80,7 +80,7 @@ def generate_profile_preference(voter_set, max_costs: [int], budget: int = 100, 
     # Create resources aray with probabilities directly proportional to profile[i] (and independent from size)
     profile = np.ndarray((len(voter_set), num_projects))
 
-    r = np.concatenate([[i]*k for i,k in enumerate(max_costs)])
+    r = np.concatenate([[i] * k for i, k in enumerate(max_costs)])
 
     for voter_idx, voter in enumerate(voter_set):
         projects_pref = generate_projects(num_projects, len(voter_set[0].value_preferences))
@@ -90,18 +90,17 @@ def generate_profile_preference(voter_set, max_costs: [int], budget: int = 100, 
         sum_proj_pref = np.sum(projects_cost, axis=1)
         norm_proj_pref = np.divide(sum_proj_pref, sum(sum_proj_pref))
 
-        probs = np.concatenate([[norm_proj_pref[i]/k]*k for i,k in enumerate(max_costs)])
+        probs = np.concatenate([[norm_proj_pref[i] / k] * k for i, k in enumerate(max_costs)])
 
         # Sample resources
         sampled = np.random.choice(r, p=probs, replace=False, size=budget)
 
-
         # Convert back to expenses
-        profile[voter_idx, :] = np.array([(sampled==i).sum() for i in range(len(norm_proj_pref))])
+        profile[voter_idx, :] = np.array([(sampled == i).sum() for i in range(len(norm_proj_pref))])
 
-    profile=profile.astype(np.int)
+    profile = profile.astype(np.int)
 
-    print("Spending: ", profile, " for a total of ",profile.sum())
+    print("Spending: ", profile, " for a total of ", profile.sum())
 
     return profile
 
@@ -241,7 +240,8 @@ def generate_and_simulate(number_of_agents, value_dimensions, budget, num_projec
     A_example = np.arange(1, num_projects + 1, 1).tolist()
 
     voter_set = generate_agents(number_of_agents, value_dimensions)
-    profile_pref = generate_profile_preference(voter_set=voter_set, max_costs=max_cost, budget=budget, num_projects=num_projects)
+    profile_pref = generate_profile_preference(voter_set=voter_set, max_costs=max_cost, budget=budget,
+                                               num_projects=num_projects)
 
     print("---Profile---")
     print(profile_pref)
@@ -381,7 +381,9 @@ if __name__ == "__main__":
 
     # Remove this line to get truly random numbers
     rn.seed(51)
-    max_costs = [rn.randint(0, args.budget) for _ in range(args.num_projects)]
+    # Generate max_costs, assuming no cost is greater than half the budget, and there are more low cost projects
+    # Outputs at 1 are most frequent, falling off linearly towards budget/3
+    max_costs = [int(np.floor(abs(rn.random() - rn.random()) * (args.budget / 3) + 1)) for _ in range(args.num_projects)]
 
     # Evaluation method
     muliple_runs_evaluation(args.n_of_agents, args.n_of_dimensions, args.budget,
