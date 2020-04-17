@@ -57,8 +57,6 @@ def generate_projects(num_projects: int = 10, value_dimensions: int = 3) -> list
     # A is the set of all possible proposals (or projects)
     A = list()
 
-    rn.seed(a=seed)
-
     for i in range(num_projects):
         pref = rn.randrange(1, value_dimensions + 1, 1)
         project = np.zeros(value_dimensions)
@@ -95,7 +93,7 @@ def generate_profile_preference(voter_set, max_costs: [int], budget: int = 100, 
         probs = np.concatenate([[norm_proj_pref[i]/k]*k for i,k in enumerate(max_costs)])
 
         # Sample resources
-        sampled = np.random.choice(r, p=probs, replace=False, size = budget)
+        sampled = np.random.choice(r, p=probs, replace=False, size=budget)
 
 
         # Convert back to expenses
@@ -184,7 +182,7 @@ def calculate_vote(profile, function, max_cost: [int], budget: int) -> np.array:
     return result
 
 
-def abs_cost_difference(profile, final_cost) -> int:
+def abs_cost_difference(profile, final_cost) -> float:
     """
     Calculates the absolute cost difference between each agent profile and the final profile
     and returns the sum for all agents for all projects.
@@ -195,7 +193,8 @@ def abs_cost_difference(profile, final_cost) -> int:
 
     diff = abs(profile - final_cost)
 
-    cost_abs = sum(sum(diff))
+    # Divide by number of agents, to have a metric that doesn't depend on it
+    cost_abs = float(sum(sum(diff))) / len(profile)
 
     return cost_abs
 
