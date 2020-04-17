@@ -79,10 +79,12 @@ def generate_profile_preference(voter_set, max_costs: [int], budget: int = 100, 
     :param num_projects: the number of projects presented to the agents
     :return: profile cost per project of each agent
     """
-
+    # Create resources aray with probabilities directly proportional to profile[i] (and independent from size)
     profile = np.ndarray((len(voter_set), num_projects))
 
-    for voter in voter_set:
+    r = np.concatenate([[i]*k for i,k in enumerate(max_costs)])
+
+    for voter_idx, voter in enumerate(voter_set):
         projects_pref = generate_projects(num_projects, len(voter_set[0].value_preferences))
 
         projects_cost = np.multiply(voter.value_preferences, projects_pref)
@@ -90,20 +92,18 @@ def generate_profile_preference(voter_set, max_costs: [int], budget: int = 100, 
         sum_proj_pref = np.sum(projects_cost, axis=1)
         norm_proj_pref = np.divide(sum_proj_pref, sum(sum_proj_pref))
 
-        profile[voter.id] = norm_proj_pref * budget
+        probs = np.concatenate([[norm_proj_pref[i]/k]*k for i,k in enumerate(max_costs)])
 
-    profile = np.rint(profile)
-    profile = profile.astype(int)
+        # Sample resources
+        sampled = np.random.choice(r, p=probs, replace=False, size = budget)
 
-    # Don't allocate more than necessary for each project
-    for (x, y), value in np.ndenumerate(profile):
-        profile[x][y] = min(value, max_costs[y])
 
-    # Due to rounding errors, the sum for each row may be bigger than the budget, so decrease some allocations
-    for x, row in enumerate(profile):
-        while np.sum(row) > budget:
-            idx = rn.randint(0, len(row)-1)
-            profile[x][idx] = profile[x][idx] - 1
+        # Convert back to expenses
+        profile[voter_idx, :] = np.array([(sampled==i).sum() for i in range(len(norm_proj_pref))])
+
+    profile=profile.astype(np.int)
+
+    print("Spending: ", profile, " for a total of ",profile.sum())
 
     return profile
 
