@@ -70,10 +70,11 @@ def generate_projects(num_projects: int = 10, value_dimensions: int = 3) -> list
     return A
 
 
-def generate_profile_preference(voter_set, budget: int = 100, num_projects: int = 10) -> np.ndarray:
+def generate_profile_preference(voter_set, max_costs: [int], budget: int = 100, num_projects: int = 10) -> np.ndarray:
     """
     Generate a profile from a set of voters
     :param voter_set: the set of all voter agents participating in the profile
+    :param max_costs: a list containing the maximum cost that can be allocated to each project
     :param budget: the maximum budget that must be allocated
     :param num_projects: the number of projects presented to the agents
     :return: profile cost per project of each agent
@@ -94,14 +95,15 @@ def generate_profile_preference(voter_set, budget: int = 100, num_projects: int 
     profile = np.rint(profile)
     profile = profile.astype(int)
 
+    # Don't allocate more than necessary for each project
+    for (x, y), value in np.ndenumerate(profile):
+        profile[x][y] = min(value, max_costs[y])
+
     # Due to rounding errors, the sum for each row may be bigger than the budget, so decrease some allocations
     for x, row in enumerate(profile):
         while np.sum(row) > budget:
             idx = rn.randint(0, len(row)-1)
             profile[x][idx] = profile[x][idx] - 1
-
-    print("summing", np.sum(profile, axis=1))
-    print(profile)
 
     return profile
 
@@ -240,7 +242,7 @@ def generate_and_simulate(number_of_agents, value_dimensions, budget, num_projec
     A_example = np.arange(1, num_projects + 1, 1).tolist()
 
     voter_set = generate_agents(number_of_agents, value_dimensions)
-    profile_pref = generate_profile_preference(voter_set=voter_set, budget=budget, num_projects=num_projects)
+    profile_pref = generate_profile_preference(voter_set=voter_set, max_costs=max_cost, budget=budget, num_projects=num_projects)
 
     print("---Profile---")
     print(profile_pref)
