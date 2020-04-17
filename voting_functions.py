@@ -243,7 +243,6 @@ def sequential_plurality(A, ballot, max_cost, budget) -> dict:
     allocation = dict()
 
     for i, r in enumerate(res):
-        print("index", old_A.index(r))
         cost = max_cost[old_A.index(r)]
 
         # Budget is exhausted
